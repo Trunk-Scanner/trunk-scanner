@@ -2,7 +2,11 @@
 
 [![License](https://img.shields.io/badge/License-GPLv3-blue?style=for-the-badge)](https://www.gnu.org/licenses/gpl-3.0)
 
+# IN ACTIVE DEVELOPMENT
+
 Remotely listen to SDR software and playback recordings.
+
+![main pic](./images/main.png)
 
 ## Getting started
 
