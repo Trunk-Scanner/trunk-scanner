@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Trunk-Scanner</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/public/css/scanner.css">
+</head>
+<body class="bg-dark text-white">
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div id="scanner" class="bg-secondary p-3 rounded-lg scanner-off" style="box-shadow: 0 0 10px 3px rgba(0,0,0,0.5);">
+                <div id="queueCounter" class="text-right">Queue: 0</div>
+                <div id="keyLight" class="light off"></div>
+
+                <h4 class="text-center mb-3">Trunk-Scanner</h4>
+                <div id="info_test" class="text-monospace">
+                    <div>TGID: <span id="tgid">LTR-Scanner V: 01.00.00</span></div>
+                    <div>Source: <span id="source">Brought to you by....</span></div>
+                    <div>Frequency: <span id="frequency">PHP Solutions Inc and....</span></div>
+                    <div>Time: <span id="dateTime">Scan.Stream and....</span></div>
+                    <div>TG Alias: <span id="talkgroupLabel">Scan.Stream admins</span></div>
+                </div>
+                <div class="text-center mt-4">
+                    <button id="startStream" class="btn btn-success">Start</button>
+                    <button id="stopStream" class="btn btn-danger">Stop</button>
+                    <button id="muteStream" class="btn btn-primary">Mute</button>
+                    <button type="button" class="btn btn-info" data-toggle="modal" data-target="#recordingsModal">
+                        View Recordings
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<audio id="audioPlayer" controls hidden></audio>
+
+<div class="modal fade" id="recordingsModal" tabindex="-1" aria-labelledby="recordingsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="recordingsModalLabel">Recordings</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="filterForm" class="mb-3">
+                    <div class="form-row">
+                        <div class="col">
+                            <input type="text" class="form-control" id="systemInput" placeholder="System">
+                        </div>
+                        <div class="col">
+                            <input type="text" class="form-control" id="talkgroupInput" placeholder="Talkgroup">
+                        </div>
+                        <div class="col">
+                            <input type="date" class="form-control" id="dateInput">
+                        </div>
+                        <div class="col-auto">
+                            <button type="button" class="btn btn-primary" onclick="searchAudioFiles()">Search</button>
+                        </div>
+                    </div>
+                </form>
+                <div id="recordingsList"></div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+<script src="/socket.io/socket.io.js"></script>
+<script src="/public/js/scanner.js"></script>
+</html>

@@ -1,0 +1,13 @@
+systems:
+    - id: 500
+      enabled: true
+      type: "sdrtrunk" # sdrtrunk is the only supported type
+      alias: "test system"
+      apiKey: "1"
+
+groups:
+    - name: "Group 1"
+      talkgroups:
+          - id: 010
+            alias: "Test Talkgroup 1"
+            enabled: true

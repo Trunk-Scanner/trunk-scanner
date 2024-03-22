@@ -1,0 +1,20 @@
+.scanner-off {
+    background-color: #1c1c1c !important;
+    color: #555 !important;
+}
+.scanner-off #queueCounter, .scanner-off .text-monospace {
+    color: #777 !important;
+}
+.light {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    display: inline-block;
+    margin-right: 10px;
+}
+.off {
+    background-color: #ccc;
+}
+.on {
+    background-color: #0f0;
+}
