@@ -1,9 +1,52 @@
+#scanner {
+    width: 500px;
+    margin: 0 auto;
+}
+
 .scanner-off {
     background-color: #1c1c1c !important;
     color: #555 !important;
 }
 .scanner-off #queueCounter, .scanner-off .text-monospace {
     color: #777 !important;
+}
+.scanner-screen {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    background-color: #002244; /* Dark blue, */
+    color: #0f0; /* Greens */
+    padding: 15px;
+    margin-top: 10px;
+    border-radius: 5px;
+    box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
+}
+
+.top-info {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    font-size: 15px;
+}
+
+.talkgroupLabel-container {
+    width: 100%;
+    /*display: flex;*/
+    justify-content: center;
+}
+
+.source-container {
+    width: 100%;
+    /*display: flex;*/
+    justify-content: center;
+    font-size: 15px;
+}
+
+.text-monospace {
+    font-family: 'Courier New', monospace;
+    line-height: 1.5;
+    gap: 5px;
 }
 .light {
     width: 20px;

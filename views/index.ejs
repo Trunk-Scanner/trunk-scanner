@@ -15,20 +15,34 @@
                 <div id="keyLight" class="light off"></div>
 
                 <h4 class="text-center mb-3">Trunk-Scanner</h4>
-                <div id="info_test" class="text-monospace">
-                    <div>TGID: <span id="tgid">LTR-Scanner V: 01.00.00</span></div>
-                    <div>Source: <span id="source">Brought to you by....</span></div>
-                    <div>Frequency: <span id="frequency">PHP Solutions Inc and....</span></div>
-                    <div>Time: <span id="dateTime">Scan.Stream and....</span></div>
-                    <div>TG Alias: <span id="talkgroupLabel">Scan.Stream admins</span></div>
+                <div class="scanner-screen d-flex flex-column justify-content-between">
+                    <div class="top-info d-flex justify-content-between text-monospace">
+                        <div>TG: <span id="tgid">0</span></div>
+                        <div>Freq: <span id="frequency">000.000.00</span></div>
+                    </div>
+                    <div id="info_test" class="text-monospace">
+                        <div class="talkgroupLabel-container text-center">
+                            <span id="talkgroupLabel" style="font-size: 25px">Trunk-Scanner V:02.00.00</span>
+                        </div>
+                        <div class="source-container text-center">
+                            <div>ID: <span id="source">0</span></div>
+                        </div>
+                    </div>
+                    <div class="bottom-info d-flex justify-content-between text-monospace">
+                        <div>Time: <span id="dateTime">N/A</span></div>
+                        <div><span id="extraInfo"></span></div>
+                    </div>
                 </div>
                 <div class="text-center mt-4">
-                    <button id="startStream" class="btn btn-success">Start</button>
-                    <button id="stopStream" class="btn btn-danger">Stop</button>
+                    <button id="toggleStream" class="btn btn-success">Start</button>
                     <button id="muteStream" class="btn btn-primary">Mute</button>
                     <button type="button" class="btn btn-info" data-toggle="modal" data-target="#recordingsModal">
-                        View Recordings
+                        Playback
                     </button>
+                    <button type="button" class="btn btn-dark" data-toggle="modal" data-target="#presetsModal">
+                        Presets
+                    </button>
+                    <button id="avoidKeyedTalkgroup" class="btn btn-primary">Avoid</button>
                 </div>
             </div>
         </div>
@@ -50,13 +64,13 @@
                 <form id="filterForm" class="mb-3">
                     <div class="form-row">
                         <div class="col">
-                            <input type="text" class="form-control" id="systemInput" placeholder="System">
+                            <label for="systemInput"></label><input type="text" class="form-control" id="systemInput" placeholder="System">
                         </div>
                         <div class="col">
-                            <input type="text" class="form-control" id="talkgroupInput" placeholder="Talkgroup">
+                            <label for="talkgroupInput"></label><input type="text" class="form-control" id="talkgroupInput" placeholder="Talkgroup">
                         </div>
                         <div class="col">
-                            <input type="date" class="form-control" id="dateInput">
+                            <label for="dateInput"></label><input type="date" class="form-control" id="dateInput">
                         </div>
                         <div class="col-auto">
                             <button type="button" class="btn btn-primary" onclick="searchAudioFiles()">Search</button>
@@ -64,6 +78,41 @@
                     </div>
                 </form>
                 <div id="recordingsList"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="presetsModal" tabindex="-1" role="dialog" aria-labelledby="presetsModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="presetsModalLabel">Manage Presets</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <label for="presetNameInput"></label><input type="text" class="form-control mb-2 text-dark" id="presetNameInput" placeholder="Preset Name">
+                <button type="button" class="btn btn-primary mb-2" id="addPresetButton">Add Preset</button>
+                <ul id="presetsList" class="list-group text-dark"></ul>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="editPresetModal" tabindex="-1" role="dialog" aria-labelledby="editPresetModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editPresetModalLabel"><span id="editPresetName"></span></h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <label for="editPresetInput"></label><input type="text" class="form-control mb-2 text-dark" id="editPresetInput" placeholder="Add Talkgroup">
+                <button type="button" class="btn btn-primary mb-2" id="addTalkgroupButton">Add Talkgroup</button>
+                <ul id="editPresetTalkgroupsList" class="list-group text-dark"></ul>
             </div>
         </div>
     </div>
