@@ -6,6 +6,9 @@ uploads/**
 uploads/*
 uploads
 
+configs/*
+!configs/config.example.yml
+
 # local env files
 .env.local
 .env.*.local
