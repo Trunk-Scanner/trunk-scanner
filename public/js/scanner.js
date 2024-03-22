@@ -133,6 +133,7 @@ document.addEventListener('DOMContentLoaded', function () {
             muteStream.classList.add('btn-secondary');
         } else {
             beepOff();
+            playNextInQueue();
             console.log("Stream unmuted.");
             muteStream.textContent = "Mute";
             muteStream.classList.remove('btn-secondary');
