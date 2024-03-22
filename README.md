@@ -20,7 +20,7 @@ Install node js
 
 If you want to specify your own config file:
 ```bash
-node index.js -c configs/config.yml
+node src/app.js -c configs/config.yml
 ```
 
 ### Configure
