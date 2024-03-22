@@ -65,7 +65,7 @@ class SdrTrunkApi {
         try {
             await this.storeFile(originalPath, audioPath);
             const relativeAudioPath = `/uploads/${path.relative(this.baseUploadPath, audioPath)}`;
-            this.io.emit('newAudio', { audio: relativeAudioPath, call: req.body });
+            this.io.emit('newAudio', { audio: relativeAudioPath, call: call });
         } catch (err) {
             console.error("Failed to store file:", err);
         }
