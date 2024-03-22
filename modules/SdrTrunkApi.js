@@ -7,10 +7,13 @@ const P25CallData = require("../models/P25CallData");
 const callData = require("./callData");
 
 class SdrTrunkApi {
-    constructor(io) {
-        this.port = 3000;
+    constructor(io, config) {
+        this.port = config.sdrtrunk.port || 3000;
+        this.bindAddress = config.sdrtrunk.bindAddress;
+
         this.io = io;
         this.app = express();
+
         this.baseUploadPath = path.join(__dirname, '../uploads');
 
         this.upload = multer({ dest: 'uploads/tmp/' });
@@ -23,14 +26,14 @@ class SdrTrunkApi {
 
             const {key, system, test} = req.body;
 
-            if (key.toString() !== '1' || system.toString() !== '500') {
+            if (key.toString() !== config.sdrtrunk.apiKey) { //|| system.toString() !== '500') {
                 console.log("Invalid key or system ID");
                 return res.status(401).send("Invalid API key or System ID");
             }
 
             // handle test connection. VERY dumb way to do this. Not sure why sdr trunk expects this body for the test
             if (test) {
-                console.log("New logon");
+                console.log("New SDR Trunk connection");
                 return res.status(200).send("incomplete call data: no talkgroup");
             }
 
@@ -49,8 +52,8 @@ class SdrTrunkApi {
             res.send('Call imported successfully.\n');
         });
 
-        this.app.listen(this.port, () => {
-            console.log(`SDR Trunk server listening at http://localhost:${this.port}`);
+        this.app.listen(this.port, this.bindAddress, () => {
+            console.log(`SDR Trunk server listening at http://${this.bindAddress}:${this.port}`);
         });
     }
 

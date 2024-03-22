@@ -5,8 +5,9 @@ const http = require('http');
 const { Server } = require("socket.io");
 
 class WebServer {
-    constructor() {
-        this.port = 4000;
+    constructor(config) {
+        this.port = config.web.port || 4000;
+        this.bindAddress = config.web.bindAddress || "0.0.0.0";
 
         this.app = express();
         this.server = http.createServer(this.app);
