@@ -23,7 +23,6 @@ class SdrTrunkApi {
             console.log('Files:', req.files);
             console.log('Body:', req.body);
             console.log("Received call data");*/
-
             const {key, system, test} = req.body;
 
             const systemConfig = config.systems.find(s => s.id.toString() === system && s.enabled);
@@ -33,14 +32,19 @@ class SdrTrunkApi {
                 return res.status(401).send("Invalid API key or System ID");
             }
 
+            if (systemConfig.type !== "sdrtrunk") {
+                console.error("Uknown system type:", systemConfig.type, "for:", systemConfig.alias);
+                return res.status(401).send("Invalid API key or System ID");
+            }
+
             if (systemConfig.apiKey !== key.toString())  {
                 console.error("Invalid key for: ", systemConfig.alias, " with key: ", key);
                 return res.status(401).send("Invalid API key or System ID");
             }
 
             // handle test connection. VERY dumb way to do this. Not sure why sdr trunk expects this body for the test
-            if (test) {
-                console.log("New SDR Trunk connection for system ", systemConfig.alias);
+            if (test && systemConfig.type === "sdrtrunk") {
+                console.log("New SDR Trunk connection for system:", systemConfig.alias);
                 return res.status(200).send("incomplete call data: no talkgroup");
             }
 

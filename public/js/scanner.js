@@ -168,7 +168,9 @@ document.addEventListener('DOMContentLoaded', function () {
             return;
         }
 
+        // Convert some ugly values to be more user friendly
         data.call.frequency = hzToMhz(data.call.frequency);
+        data.call.dateTime = parseTimestamp(data.call.dateTime);
 
         if (isPlaying) {
             console.log("Audio queued.");
@@ -411,5 +413,5 @@ function hzToMhz(frequencyHz) {
 
 function parseTimestamp(timestamp) {
     const date = new Date(timestamp * 1000);
-    return date.toLocaleString();
+    return date.toTimeString().split(' ')[0];
 }
