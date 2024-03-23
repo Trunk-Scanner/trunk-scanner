@@ -1,5 +1,6 @@
 let streamEnabled = false;
 let muted = false;
+let whiteListEnabled = true;
 let audioQueue = []; // queue to hold audio data
 let isPlaying = false; // flag if audio is currently playing
 let avoidedTalkgroups = []; // talkgroups to avoid only during the current session
@@ -9,6 +10,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const socket = io();
     const audioPlayer = document.getElementById('audioPlayer');
     const muteStream = document.getElementById('muteStream');
+    const whiteListEnableToggle = document.getElementById('whiteListEnableToggle');
     const avoidKeyedTalkgroupButton = document.getElementById('avoidKeyedTalkgroup');
     const extraInfo = document.getElementById('extraInfo');
     const queueCounter = document.getElementById('queueCounter');
@@ -141,11 +143,29 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
+    whiteListEnableToggle.addEventListener('click', function() {
+        whiteListEnabled = !whiteListEnabled;
+
+        if (whiteListEnabled) {
+            beepOn();
+            console.log("Whitelist enabled.");
+            whiteListEnableToggle.textContent = "Disable Whitelist";
+            whiteListEnableToggle.classList.remove('btn-danger');
+            whiteListEnableToggle.classList.add('btn-success');
+        } else {
+            beepOff();
+            console.log("Whitelist disabled.");
+            whiteListEnableToggle.textContent = "Enable Whitelist";
+            whiteListEnableToggle.classList.remove('btn-success');
+            whiteListEnableToggle.classList.add('btn-danger');
+        }
+    });
+
     socket.on('newAudio', function(data) {
         console.log("New call received.");
         if (!streamEnabled) return;
 
-        if (!isTalkgroupWhitelisted(data.call.talkgroup)){
+        if (!isTalkgroupWhitelisted(data.call.talkgroup) && whiteListEnabled){
             console.log(`Talkgroup ${data.call.talkgroup} is not whitelisted. Skipping...`);
             return;
         }
