@@ -88,9 +88,7 @@ document.addEventListener('DOMContentLoaded', function () {
         currentTalkgroup = null;
 
         if (!isPlaying) {
-            setTimeout(() => {
-                document.getElementById('source').textContent = "Waiting...";
-            }, 1500);
+            document.getElementById('source').textContent = "Waiting...";
         }
 
         playNextInQueue();

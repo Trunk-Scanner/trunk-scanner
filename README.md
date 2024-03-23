@@ -25,7 +25,7 @@ node src/app.js -c configs/config.yml
 
 ### Configure
 
-Edit the `config.yml` file to your needs NOTE: NOT USED RN
+Edit the `config.yml` file to your needs
 
 ## Todo
 
