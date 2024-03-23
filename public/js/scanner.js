@@ -1,10 +1,14 @@
-let streamEnabled = false;
 let muted = false;
-let whiteListEnabled = true;
-let audioQueue = []; // queue to hold audio data
 let isPlaying = false; // flag if audio is currently playing
+
+let whiteListEnabled = true;
+let streamEnabled = false;
+
+let audioQueue = []; // queue to hold audio data
 let avoidedTalkgroups = []; // talkgroups to avoid only during the current session
+
 let currentTalkgroup = null; // talkgroup currently being played
+let lastCallData = null; // last call received
 
 document.addEventListener('DOMContentLoaded', function () {
     const socket = io();
@@ -20,6 +24,8 @@ document.addEventListener('DOMContentLoaded', function () {
     $('#presetsModal').on('shown.bs.modal', loadPresets);
 
     document.getElementById('addPresetButton').addEventListener('click', addPreset);
+    document.getElementById('playLastCall').addEventListener('click', playLastCall);
+
     document.getElementById('presetNameInput').addEventListener('keypress', function(e) {
         if (e.key === 'Enter') {
             addPreset();
@@ -40,39 +46,6 @@ document.addEventListener('DOMContentLoaded', function () {
             const data = audioQueue.shift(); // next audio data from the queue
             updateInfoAndPlay(data);
             updateQueueCounter();
-        }
-    };
-
-    const updateInfoAndPlay = (data) => {
-        document.getElementById('tgid').textContent = data.call.talkgroup;
-        document.getElementById('source').textContent = data.call.source;
-        document.getElementById('frequency').textContent = data.call.frequency;
-        document.getElementById('dateTime').textContent = data.call.dateTime;
-        document.getElementById('talkgroupLabel').textContent = data.call.talkgroupLabel;
-
-        currentTalkgroup = data.call.talkgroup;
-
-        if (isTalkgroupAvoided(data.call.talkgroup)){
-            console.log(`Talkgroup ${data.call.talkgroup} is avoided. Skipping...`);
-            extraInfo.classList.add("badge");
-            extraInfo.classList.add("badge-success");
-            extraInfo.innerText = "AVOID";
-            return;
-        } else {
-            extraInfo.classList.remove("badge");
-            extraInfo.classList.remove("badge-success");
-            extraInfo.innerText = "";
-        }
-
-        isPlaying = true;
-        lightOn();
-
-        if (!muted) {
-            console.log(`Playing audio: TGID: ${data.call.talkgroup}, Frequency: ${data.call.frequency}`);
-
-            audioPlayer.src = data.audio;
-            audioPlayer.load();
-            audioPlayer.play().catch(e => console.error('Error playing audio:', e));
         }
     };
 
@@ -180,6 +153,56 @@ document.addEventListener('DOMContentLoaded', function () {
         }
         updateQueueCounter();
     });
+
+    const updateInfoAndPlay = (data) => {
+        updateScannerInfo(data);
+
+        currentTalkgroup = data.call.talkgroup;
+        lastCallData = data;
+
+        if (isTalkgroupAvoided(data.call.talkgroup)){
+            console.log(`Talkgroup ${data.call.talkgroup} is avoided. Skipping...`);
+            extraInfo.classList.add("badge");
+            extraInfo.classList.add("badge-success");
+            extraInfo.innerText = "AVOID";
+            return;
+        } else {
+            extraInfo.classList.remove("badge");
+            extraInfo.classList.remove("badge-success");
+            extraInfo.innerText = "";
+        }
+
+        isPlaying = true;
+        lightOn();
+
+        if (!muted) {
+            console.log(`Playing audio: TGID: ${data.call.talkgroup}, Frequency: ${data.call.frequency}`);
+
+            audioPlayer.src = data.audio;
+            audioPlayer.load();
+            audioPlayer.play().catch(e => console.error('Error playing audio:', e));
+        }
+    };
+
+    function updateScannerInfo(data) {
+        document.getElementById('tgid').textContent = data.call.talkgroup;
+        document.getElementById('source').textContent = data.call.source;
+        document.getElementById('frequency').textContent = data.call.frequency;
+        document.getElementById('dateTime').textContent = data.call.dateTime;
+        document.getElementById('talkgroupLabel').textContent = data.call.talkgroupLabel;
+    }
+
+    function playLastCall() {
+        if (lastCallData && !isPlaying) {
+            updateScannerInfo(lastCallData);
+            console.log("Playing last call:", lastCallData.call.talkgroup);
+            audioPlayer.src = lastCallData.audio;
+            audioPlayer.load();
+            audioPlayer.play().catch(e => console.error('Error playing last call audio:', e));
+        } else {
+            console.error('No last call data available or is currently playing.');
+        }
+    }
 });
 
 function lightOn() {
