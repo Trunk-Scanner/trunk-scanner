@@ -403,6 +403,13 @@ function searchAudioFiles() {
         });
 }
 
+// Helper functions
+
 function hzToMhz(frequencyHz) {
     return parseInt(frequencyHz) / 1000000;
+}
+
+function parseTimestamp(timestamp) {
+    const date = new Date(timestamp * 1000);
+    return date.toLocaleString();
 }

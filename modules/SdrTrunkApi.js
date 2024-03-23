@@ -26,14 +26,21 @@ class SdrTrunkApi {
 
             const {key, system, test} = req.body;
 
-            if (key.toString() !== config.sdrtrunk.apiKey) { //|| system.toString() !== '500') {
-                console.log("Invalid key or system ID");
+            const systemConfig = config.systems.find(s => s.id.toString() === system && s.enabled);
+
+            if (!systemConfig) {
+                console.error("Unknown system ID: ", system);
+                return res.status(401).send("Invalid API key or System ID");
+            }
+
+            if (systemConfig.apiKey !== key.toString())  {
+                console.error("Invalid key for: ", systemConfig.alias, " with key: ", key);
                 return res.status(401).send("Invalid API key or System ID");
             }
 
             // handle test connection. VERY dumb way to do this. Not sure why sdr trunk expects this body for the test
             if (test) {
-                console.log("New SDR Trunk connection");
+                console.log("New SDR Trunk connection for system ", systemConfig.alias);
                 return res.status(200).send("incomplete call data: no talkgroup");
             }
 
@@ -48,7 +55,7 @@ class SdrTrunkApi {
                 }
             }
 
-            console.log("call data uploaded successfully");
+            console.log("Call data received and sent successfully");
             res.send('Call imported successfully.\n');
         });
 
@@ -64,7 +71,7 @@ class SdrTrunkApi {
         const timePath = `${String(dateObj.getHours()).padStart(2, '0')}-${String(dateObj.getMinutes()).padStart(2, '0')}-${String(dateObj.getSeconds()).padStart(2, '0')}`;
 
         const audioPath = path.join(this.baseUploadPath, call.system, call.talkgroup, datePath, `${timePath}.mp3`);
-        console.log("NEW", req.body.mode, "CALL: TG:", call.talkgroup, " Freq: ", call.frequency, " Source: ", call.source, " System: ", call.system, " DateTime: ", call.dateTime);
+        console.log(req.body.mode, "Call Received; TG:", call.talkgroup, "Freq:", call.frequency, "Source:", call.source, "System:", call.system, "DateTime:", call.dateTime);
         try {
             await this.storeFile(originalPath, audioPath);
             const relativeAudioPath = `/uploads/${path.relative(this.baseUploadPath, audioPath)}`;
