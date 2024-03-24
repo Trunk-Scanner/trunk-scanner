@@ -140,7 +140,10 @@ document.addEventListener('DOMContentLoaded', function () {
         isPlaying = false;
         currentTalkgroup = null;
 
-        if (!isPlaying && audioQueue.length < 0) {
+        console.log("Queue length:", audioQueue.length);
+
+        if (!isPlaying && audioQueue.length === 0) {
+            console.log("Queue is empty and we arnt playing anything");
             setTimeout(() => {
                 document.getElementById('source').textContent = "Waiting...";
             }, 1500);
