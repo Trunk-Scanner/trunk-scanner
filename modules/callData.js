@@ -11,7 +11,7 @@ function isP25Call(call) {
 function isDmrCall(call) {
     call.mode = "DMR";
 
-    return false;
+    return false; // just return false bc dmr isnt a concern
 }
 
 function isLtrCall(call) {

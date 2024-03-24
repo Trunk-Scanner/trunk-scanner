@@ -33,12 +33,12 @@ class SdrTrunkApi {
             }
 
             if (systemConfig.type !== "sdrtrunk") {
-                console.error("Uknown system type:", systemConfig.type, "for:", systemConfig.alias);
+                console.error("Unknown system type:", systemConfig.type, "for:", systemConfig.alias);
                 return res.status(401).send("Invalid API key or System ID");
             }
 
             if (systemConfig.apiKey !== key.toString())  {
-                console.error("Invalid key for: ", systemConfig.alias, " with key: ", key);
+                console.error("Invalid key for:", systemConfig.alias, "with key:", key);
                 return res.status(401).send("Invalid API key or System ID");
             }
 

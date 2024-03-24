@@ -14,7 +14,6 @@ document.addEventListener('DOMContentLoaded', function () {
     const socket = io();
     const audioPlayer = document.getElementById('audioPlayer');
     const muteStream = document.getElementById('muteStream');
-    const whiteListEnableToggle = document.getElementById('whiteListEnableToggle');
     const avoidKeyedTalkgroupButton = document.getElementById('avoidKeyedTalkgroup');
     const extraInfo = document.getElementById('extraInfo');
     const queueCounter = document.getElementById('queueCounter');
@@ -23,9 +22,43 @@ document.addEventListener('DOMContentLoaded', function () {
     updateVolumeDisplay();
     loadPresets();
 
-    $('#presetsModal').on('shown.bs.modal', loadPresets);
+    $('#presetsModal').on('shown.bs.modal', function () {
+        loadPresets();
+    });
 
-    document.getElementById('addPresetButton').addEventListener('click', addPreset);
+    $('#editPresetModal').on('show.bs.modal', function () {
+        populateTalkgroupDropdownForEditing();
+    });
+
+    document.getElementById('addPresetButton').addEventListener('click', function() {
+        const presetName = document.getElementById('presetNameInput').value.trim();
+        if (presetName) {
+            const presets = JSON.parse(localStorage.getItem('presets') || '{}');
+            if (!presets[presetName]) {
+                presets[presetName] = { enabled: true, talkgroups: [] };
+                localStorage.setItem('presets', JSON.stringify(presets));
+                $('#presetNameInput').val('');
+                loadPresets();
+            } else {
+                alert('Preset already exists.');
+            }
+        }
+    });
+
+    document.getElementById('addTalkgroupButton').addEventListener('click', function() {
+        const presetName = document.getElementById('currentlyEditingPresetName').value;
+        const selectedTalkgroup = document.getElementById('editTalkgroupSelect').value;
+        const presets = JSON.parse(localStorage.getItem('presets') || '{}');
+
+        if (presetName && presets[presetName] && !presets[presetName].talkgroups.includes(selectedTalkgroup)) {
+            presets[presetName].talkgroups.push(selectedTalkgroup);
+            localStorage.setItem('presets', JSON.stringify(presets));
+            updatePresetTalkgroupsList(presetName, presets[presetName].talkgroups);
+        } else {
+            alert('This talkgroup is already in the preset or preset name is missing.');
+        }
+    });
+
     document.getElementById('playLastCall').addEventListener('click', playLastCall);
 
     document.getElementById('presetNameInput').addEventListener('keypress', function(e) {
@@ -142,24 +175,6 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
-    whiteListEnableToggle.addEventListener('click', function() {
-        whiteListEnabled = !whiteListEnabled;
-
-        if (whiteListEnabled) {
-            beepOn();
-            console.log("Whitelist enabled.");
-            whiteListEnableToggle.textContent = "Disable Whitelist";
-            whiteListEnableToggle.classList.remove('btn-danger');
-            whiteListEnableToggle.classList.add('btn-success');
-        } else {
-            beepOff();
-            console.log("Whitelist disabled.");
-            whiteListEnableToggle.textContent = "Enable Whitelist";
-            whiteListEnableToggle.classList.remove('btn-success');
-            whiteListEnableToggle.classList.add('btn-danger');
-        }
-    });
-
     socket.on('newAudio', function(data) {
         console.log("New call received.");
         if (!streamEnabled) return;
@@ -241,6 +256,74 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 });
 
+function togglePreset(presetName) {
+    const presets = JSON.parse(localStorage.getItem('presets') || '{}');
+    if (presets[presetName]) {
+        presets[presetName].enabled = !presets[presetName].enabled;
+        localStorage.setItem('presets', JSON.stringify(presets));
+        loadPresets();
+    } else {
+        console.error('Preset not found:', presetName);
+    }
+}
+
+function loadPresets() {
+    const presets = JSON.parse(localStorage.getItem('presets') || '{}');
+    const listElement = document.getElementById('presetsList');
+    listElement.innerHTML = '';
+
+    for (const [presetName, presetData] of Object.entries(presets)) {
+        const li = document.createElement('li');
+        li.className = 'list-group-item d-flex justify-content-between align-items-center';
+        li.innerHTML = `
+            ${presetName} <span class="badge badge-${presetData.enabled ? 'success' : 'secondary'}">${presetData.enabled ? 'Enabled' : 'Disabled'}</span>
+            <div>
+                <button class="btn btn-info btn-sm" onclick="togglePreset('${presetName}')">${presetData.enabled ? 'Disable' : 'Enable'}</button>
+                <button class="btn btn-primary btn-sm" onclick="openEditPresetModal('${presetName}')">Edit</button>
+                <button class="btn btn-danger btn-sm" onclick="deletePreset('${presetName}')">Delete</button>
+            </div>
+        `;
+        listElement.appendChild(li);
+    }
+
+    document.querySelectorAll('.toggle-preset').forEach(button => {
+        button.addEventListener('click', function() {
+            togglePreset(this.getAttribute('data-preset-name'));
+        });
+    });
+}
+
+function populateTalkgroupDropdownForEditing() {
+    const dropdown = document.getElementById('editTalkgroupSelect');
+
+    dropdown.innerHTML = '';
+
+    groups.forEach(group => {
+        const optGroup = document.createElement('optgroup');
+        optGroup.label = group.name;
+        group.talkgroups.forEach(tg => {
+            const option = document.createElement('option');
+            option.value = tg.id;
+            option.textContent = `${tg.alias} (${tg.id})`;
+            optGroup.appendChild(option);
+        });
+        dropdown.appendChild(optGroup);
+    });
+}
+
+function openEditPresetModal(presetName) {
+    document.getElementById('currentlyEditingPresetName').value = presetName;
+
+    populateTalkgroupDropdownForEditing();
+
+    const presets = JSON.parse(localStorage.getItem('presets') || '{}');
+    if (presets[presetName]) {
+        updatePresetTalkgroupsList(presetName, presets[presetName].talkgroups);
+    }
+
+    $('#editPresetModal').modal('show');
+}
+
 function lightOn() {
     document.getElementById('keyLight').classList.remove('off');
     document.getElementById('keyLight').classList.add('on');
@@ -311,63 +394,28 @@ function isTalkgroupWhitelisted(talkgroup) {
     return false; // is not whitelisted
 }
 
-function loadPresets() {
-    const presets = JSON.parse(localStorage.getItem('presets') || '{}');
-    const listElement = document.getElementById('presetsList');
-    listElement.innerHTML = '';
-    for (const [presetName, presetData] of Object.entries(presets)) {
-        const li = document.createElement('li');
-        li.className = 'list-group-item d-flex justify-content-between align-items-center';
-        li.innerHTML = `
-            ${presetName} <span class="badge badge-${presetData.enabled ? 'success' : 'secondary'}">${presetData.enabled ? 'Enabled' : 'Disabled'}</span>
-            <div>
-                <button class="btn btn-primary btn-sm" onclick="openEditPresetModal('${presetName}')">Edit</button>
-                <button class="btn btn-info btn-sm" onclick="togglePreset('${presetName}')">${presetData.enabled ? 'Disable' : 'Enable'}</button>
-                <button class="btn btn-danger btn-sm" onclick="deletePreset('${presetName}')">Delete</button>
-            </div>
-        `;
-        listElement.appendChild(li);
-    }
-}
-
 function addPreset() {
     const presetName = document.getElementById('presetNameInput').value.trim();
-    if(presetName) {
+    const selectedTalkgroup = document.getElementById('talkgroupSelect').value;
+
+    if (presetName) {
         const presets = JSON.parse(localStorage.getItem('presets') || '{}');
         if (!presets[presetName]) {
-            presets[presetName] = { enabled: true, talkgroups: [] };
+            presets[presetName] = { enabled: true, talkgroups: [selectedTalkgroup] }; // Include selected talkgroup
             localStorage.setItem('presets', JSON.stringify(presets));
-            loadPresets();
-            document.getElementById('presetNameInput').value = '';
+            alert('Preset added successfully.');
         } else {
             alert('Preset already exists.');
         }
-    }
-}
-
-function togglePreset(presetName) {
-    console.log('Toggling preset:', presetName);
-    const presets = JSON.parse(localStorage.getItem('presets') || '{}');
-    if (presets[presetName]) {
-        presets[presetName].enabled = !presets[presetName].enabled;
-        localStorage.setItem('presets', JSON.stringify(presets));
         loadPresets();
+    } else {
+        alert('Please enter a name for the preset.');
     }
-}
-
-function openEditPresetModal(presetName) {
-    $('#editPresetModal').modal('show');
-    document.getElementById('editPresetName').innerText = `Edit Preset: ${presetName}`;
-    const presets = JSON.parse(localStorage.getItem('presets') || '{}');
-    if (presets[presetName]) {
-        updatePresetTalkgroupsList(presetName, presets[presetName].talkgroups);
-    }
-    document.getElementById('addTalkgroupButton').onclick = () => addTalkgroupToPreset(presetName);
 }
 
 function updatePresetTalkgroupsList(presetName, talkgroups) {
     const listElement = document.getElementById('editPresetTalkgroupsList');
-    listElement.innerHTML = ''; // Clear the list
+    listElement.innerHTML = '';
     talkgroups.forEach(talkgroup => {
         const listItem = document.createElement('li');
         listItem.className = 'list-group-item d-flex justify-content-between align-items-center';
@@ -382,27 +430,25 @@ function updatePresetTalkgroupsList(presetName, talkgroups) {
 }
 
 function addTalkgroupToPreset(presetName) {
-    const talkgroup = document.getElementById('editPresetInput').value.trim();
-    if (talkgroup) {
-        const presets = JSON.parse(localStorage.getItem('presets') || '{}');
-        if (!presets[presetName].talkgroups.includes(talkgroup)) {
-            presets[presetName].talkgroups.push(talkgroup);
-            localStorage.setItem('presets', JSON.stringify(presets));
-            updatePresetTalkgroupsList(presetName, presets[presetName].talkgroups);
-            document.getElementById('editPresetInput').value = ''; // Clear the input field
-        } else {
-            alert('Talkgroup already in the preset.');
-        }
+    const selectedTalkgroup = document.getElementById('editTalkgroupSelect').value;
+    const presets = JSON.parse(localStorage.getItem('presets') || '{}');
+
+    if (presets[presetName] && !presets[presetName].talkgroups.includes(selectedTalkgroup)) {
+        presets[presetName].talkgroups.push(selectedTalkgroup);
+        localStorage.setItem('presets', JSON.stringify(presets));
+        updatePresetTalkgroupsList(presetName, presets[presetName].talkgroups);
     }
 }
 
 function removeTalkgroupFromPreset(presetName, talkgroup) {
     const presets = JSON.parse(localStorage.getItem('presets') || '{}');
-    const index = presets[presetName].talkgroups.indexOf(talkgroup);
-    if (index !== -1) {
-        presets[presetName].talkgroups.splice(index, 1);
-        localStorage.setItem('presets', JSON.stringify(presets));
-        updatePresetTalkgroupsList(presetName, presets[presetName].talkgroups);
+    if (presets[presetName]) {
+        const index = presets[presetName].talkgroups.indexOf(talkgroup);
+        if (index !== -1) {
+            presets[presetName].talkgroups.splice(index, 1);
+            localStorage.setItem('presets', JSON.stringify(presets));
+            updatePresetTalkgroupsList(presetName, presets[presetName].talkgroups);
+        }
     }
 }
 

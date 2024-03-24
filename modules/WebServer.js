@@ -20,7 +20,9 @@ class WebServer {
         this.app.use('/public', express.static('public'));
 
         this.app.get('/', (req, res) => {
-            res.render("index");
+            const groups = config.groups;
+
+            res.render("index", { groups });
         });
 
         this.app.get('/api/recordings', (req, res) => {
