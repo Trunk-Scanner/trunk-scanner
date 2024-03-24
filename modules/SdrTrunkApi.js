@@ -5,6 +5,7 @@ const multer = require('multer');
 const LtrCallData = require("../models/LtrCallData");
 const P25CallData = require("../models/P25CallData");
 const callData = require("./callData");
+const DmrCallData = require("../models/DmrCallData");
 
 class SdrTrunkApi {
     constructor(io, config) {
@@ -51,11 +52,13 @@ class SdrTrunkApi {
             if (req.files && req.files.length > 0 && this.io) {
                 if (callData.isLtrCall(req.body)){
                     await this.handleCall(new LtrCallData(req.body), req);
-                } else if (callData.isP25Call(req.body)){
+                } else if (callData.isP25Call(req.body)) {
                     await this.handleCall(new P25CallData(req.body), req);
+                } else if (callData.isDmrCall(req.body)){
+                    await this.handleCall(new DmrCallData(req.body), req);
                 } else {
-                    console.log(req.body.mode, "call type");
-                    return res.status(400).send("Unknown call type");
+                    req.body.mode = "UNKNOWN";
+                    await this.handleCall(req.body, req);
                 }
             }
 

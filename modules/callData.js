@@ -4,14 +4,18 @@ function isP25Call(call) {
         return true;
     }
 
-    call.mode = "UNKOWN";
+    call.mode = "UNKNOWN";
     return false;
 }
 
 function isDmrCall(call) {
-    call.mode = "DMR";
+    if (!call.talkgroup.length <= 8 && parseInt(call.talkgroup) < 16777215) {
+        call.mode = "DMR";
+        return true;
+    }
 
-    return false; // just return false bc dmr isnt a concern
+    call.mode = "UNKNOWN";
+    return false;
 }
 
 function isLtrCall(call) {
@@ -24,14 +28,17 @@ function isLtrCall(call) {
     const tgid = call.talkgroup.substring(3);
 
     if (!['0', '1'].includes(areaBit)) {
+        call.mode = "UNKNOWN";
         return false;
     }
 
     if (!/^[0-2][0-9]$/.test(homeChannel) || parseInt(homeChannel, 10) < 1 || parseInt(homeChannel, 10) > 20) {
+        call.mode = "UNKNOWN";
         return false;
     }
 
     if (!/^\d+$/.test(tgid)) {
+        call.mode = "UNKNOWN";
         return false;
     }
 
