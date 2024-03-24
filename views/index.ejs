@@ -4,7 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Trunk-Scanner</title>
+
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+
     <link rel="stylesheet" href="/public/css/scanner.css">
 </head>
 <body class="bg-dark text-white">
@@ -12,8 +15,13 @@
     <div class="row justify-content-center">
         <div class="col-md-8">
             <div id="scanner" class="bg-secondary p-3 rounded-lg scanner-off" style="box-shadow: 0 0 10px 3px rgba(0,0,0,0.5);">
-                <div id="queueCounter" class="text-right">Queue: 0</div>
-                <div id="keyLight" class="light off"></div>
+                <div class="scanner-status d-flex justify-content-between">
+                    <div id="keyLight" class="light off"></div>
+                    <div>
+                        <div id="queueCounter" class="text-right">Queue: 0</div>
+                        <div id="volumePercentage" class="text-right">Volume: 100%</div>
+                    </div>
+                </div>
 
                 <h4 class="text-center mb-3">Trunk-Scanner</h4>
                 <div class="scanner-screen d-flex flex-column justify-content-between">
@@ -41,6 +49,10 @@
                     <button type="button" class="btn btn-dark m-1" data-toggle="modal" data-target="#presetsModal">Presets</button>
                     <button id="avoidKeyedTalkgroup" class="btn btn-info m-1">Avoid</button>
                     <button id="playLastCall" class="btn btn-primary m-1">Replay Last</button>
+                </div>
+                <div class="volume-controls d-flex flex-column position-absolute">
+                    <button id="volumeUp" class="btn btn-warning btn-sm mb-2"><i class="fas fa-arrow-up"></i></button>
+                    <button id="volumeDown" class="btn btn-warning btn-sm"><i class="fas fa-arrow-down"></i></button>
                 </div>
             </div>
         </div>

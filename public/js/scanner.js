@@ -20,7 +20,9 @@ document.addEventListener('DOMContentLoaded', function () {
     const queueCounter = document.getElementById('queueCounter');
     const scanner = document.getElementById('scanner');
 
+    updateVolumeDisplay();
     loadPresets();
+
     $('#presetsModal').on('shown.bs.modal', loadPresets);
 
     document.getElementById('addPresetButton').addEventListener('click', addPreset);
@@ -31,6 +33,32 @@ document.addEventListener('DOMContentLoaded', function () {
             addPreset();
         }
     });
+
+    // TODO: Remove. For debug use only
+    audioPlayer.addEventListener('volumechange', function() {
+        console.log('Volume changed event: Current volume is ' + audioPlayer.volume);
+    });
+
+    document.getElementById('volumeUp').addEventListener('click', () => {
+        if (audioPlayer.volume <= 0.8) {
+            audioPlayer.volume = Math.min(audioPlayer.volume + 0.2, 1);
+            console.log("Volume Up Clicked: New Volume =", audioPlayer.volume);
+            playVolumeBeep(audioPlayer.volume);
+            updateVolumeDisplay();
+        } else {
+            playVolumeBeep(audioPlayer.volume, true);
+        }
+    });
+
+    document.getElementById('volumeDown').addEventListener('click', () => {
+        if (audioPlayer.volume >= 0.2) {
+            audioPlayer.volume = Math.max(audioPlayer.volume - 0.2, 0);
+            console.log("Volume Down Clicked: New Volume =", audioPlayer.volume);
+            playVolumeBeep(audioPlayer.volume);
+            updateVolumeDisplay();
+        }
+    });
+
 
     avoidKeyedTalkgroupButton.addEventListener('click', () => {
         if (isTalkgroupAvoided(currentTalkgroup)) {
@@ -155,6 +183,8 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     const updateInfoAndPlay = (data) => {
+        console.log(`About to play audio at volume: ${audioPlayer.volume}`);
+
         updateScannerInfo(data);
 
         currentTalkgroup = data.call.talkgroup;
@@ -176,13 +206,19 @@ document.addEventListener('DOMContentLoaded', function () {
         lightOn();
 
         if (!muted) {
-            console.log(`Playing audio: TGID: ${data.call.talkgroup}, Frequency: ${data.call.frequency}`);
+            console.log(`Playing audio: TGID: ${data.call.talkgroup}, Frequency: ${data.call.frequency}, Volume: ${audioPlayer.volume}`);
 
             audioPlayer.src = data.audio;
             audioPlayer.load();
             audioPlayer.play().catch(e => console.error('Error playing audio:', e));
         }
     };
+
+    function updateVolumeDisplay() {
+        const volumePercentage = Math.round(audioPlayer.volume * 100);
+        console.log(`Updating Volume Display to ${volumePercentage}%`);
+        document.getElementById('volumePercentage').textContent = `Volume: ${volumePercentage}%`;
+    }
 
     function updateScannerInfo(data) {
         document.getElementById('tgid').textContent = data.call.talkgroup;
@@ -226,6 +262,24 @@ function beepOff() {
 function beepError() {
     playBeep(220, 0.2);
     setTimeout(() => playBeep(220, 0.2), 300);
+}
+
+function playVolumeBeep(volumeLevel, longer = false) {
+    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    const oscillator = audioContext.createOscillator();
+    const gainNode = audioContext.createGain();
+
+    oscillator.connect(gainNode);
+    gainNode.connect(audioContext.destination);
+
+    gainNode.gain.value = volumeLevel;
+    oscillator.frequency.value = 520; // Hz
+    oscillator.type = "sine"; // Sine
+
+    const beepDuration = longer ? 0.5 : 0.1;
+
+    oscillator.start(audioContext.currentTime);
+    oscillator.stop(audioContext.currentTime + beepDuration);
 }
 
 function playBeep(freq = 520, duration = 0.1) {
@@ -428,7 +482,7 @@ function searchAudioFiles() {
         });
 }
 
-// Helper functions
+// Simple helper functions
 
 function hzToMhz(frequencyHz) {
     return parseInt(frequencyHz) / 1000000;

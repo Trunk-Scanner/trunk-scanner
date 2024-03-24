@@ -1,4 +1,5 @@
 #scanner {
+    position: relative;
     width: 500px;
     margin: 0 auto;
 }
@@ -7,9 +8,10 @@
     background-color: #1c1c1c !important;
     color: #555 !important;
 }
-.scanner-off #queueCounter, .scanner-off .text-monospace {
+.scanner-off #queueCounter #volumePercentage, .scanner-off .text-monospace {
     color: #777 !important;
 }
+
 .scanner-screen {
     display: flex;
     flex-direction: column;
@@ -48,16 +50,49 @@
     line-height: 1.5;
     gap: 5px;
 }
+.scanner-status {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
 .light {
     width: 20px;
     height: 20px;
     border-radius: 50%;
     display: inline-block;
-    margin-right: 10px;
 }
+
 .off {
     background-color: #ccc;
 }
+
 .on {
     background-color: #0f0;
+}
+
+.text-right {
+    text-align: right;
+}
+
+.volume-controls {
+    position: absolute;
+    top: 50%;
+    right: -1px;
+    transform: translateY(-50%);
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.volume-controls .btn {
+    padding: 0.25rem 0.25rem;
+    font-size: 0.75rem;
+    width: 20px;
+    text-align: center;
+}
+
+.volume-controls .btn i {
+    margin: 0;
 }
