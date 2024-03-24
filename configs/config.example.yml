@@ -1,3 +1,22 @@
+web: # Web Server for the UI
+  port: 4000
+  bindAddress: 0.0.0.0
+
+sdrtrunk: # SDRTrunk Server. May work with other software's out there, untested
+  port: 3000
+  bindAddress: 0.0.0.0
+
+discord:
+  bot:
+    enabled: false
+    token: "xxxx"
+    channel: "1234567890" # Channel for tg update status for voice bot
+    systemUrl: "http://localhost:4000" # Used as the URL for the bot to get audio from
+
+  webhook:
+    enabled: false
+    url: "https://discord.com/api/webhooks/"
+
 systems:
     - id: 500
       enabled: true
@@ -6,8 +25,20 @@ systems:
       apiKey: "1"
 
 groups:
-    - name: "Group 1"
-      talkgroups:
-          - id: 010
-            alias: "Test Talkgroup 1"
-            enabled: true
+  - name: "LTR Site"
+    talkgroups:
+      - id: "010"
+        alias: "TECH 1"
+        enabled: true
+      - id: "040"
+        alias: "OPS"
+        enabled: true
+
+  - name: "FD"
+    talkgroups:
+      - id: "5601"
+        alias: "North"
+        enabled: true
+      - id: "5602"
+        alias: "Central"
+        enabled: true

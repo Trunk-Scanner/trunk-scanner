@@ -19,6 +19,7 @@ const argv = yargs
 let config = {
     web: {},
     sdrtrunk: {},
+    discord: null,
     systems: []
 };
 

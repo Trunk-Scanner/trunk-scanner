@@ -2,18 +2,31 @@ const fs = require('fs');
 const path = require('path');
 const express = require('express');
 const multer = require('multer');
+
+const callData = require("./callData");
+const DiscordWebhook = require("./DiscordWebhook");
+
 const LtrCallData = require("../models/LtrCallData");
 const P25CallData = require("../models/P25CallData");
-const callData = require("./callData");
 const DmrCallData = require("../models/DmrCallData");
+const DiscordBot = require("./DiscordBot");
 
 class SdrTrunkApi {
     constructor(io, config) {
         this.port = config.sdrtrunk.port || 3000;
         this.bindAddress = config.sdrtrunk.bindAddress;
+        this.discordWebhookEnable = config.discord.webhook.enabled;
 
         this.io = io;
         this.app = express();
+
+        if (this.discordWebhookEnable) {
+            this.discordWebhook = new DiscordWebhook(config);
+        }
+
+        if (config.discord.bot.enabled) {
+            this.discordBot = new DiscordBot(config.discord.bot.token, config.discord.bot.channel, config.discord.bot.systemUrl);
+        }
 
         this.baseUploadPath = path.join(__dirname, '../uploads');
 
@@ -78,10 +91,18 @@ class SdrTrunkApi {
         const timePath = `${String(dateObj.getHours()).padStart(2, '0')}-${String(dateObj.getMinutes()).padStart(2, '0')}-${String(dateObj.getSeconds()).padStart(2, '0')}`;
 
         const audioPath = path.join(this.baseUploadPath, call.system, call.talkgroup, datePath, `${timePath}.mp3`);
+
+        if (this.discordWebhookEnable && this.discordWebhook) {
+            await this.discordWebhook.sendCallMessage(call);
+        }
+
         console.log(req.body.mode, "Call Received; TG:", call.talkgroup, "Freq:", call.frequency, "Source:", call.source, "System:", call.system, "DateTime:", call.dateTime);
         try {
             await this.storeFile(originalPath, audioPath);
             const relativeAudioPath = `/uploads/${path.relative(this.baseUploadPath, audioPath)}`;
+            if (this.discordBot) {
+                this.discordBot.enqueue(relativeAudioPath, call.talkgroupLabel, call.source);
+            }
             this.io.emit('newAudio', { audio: relativeAudioPath, call: call });
         } catch (err) {
             console.error("Failed to store file:", err);

@@ -10,6 +10,7 @@ class DmrCallData {
         this.talkgroupGroup = talkgroupGroup;
         this.systemLabel = systemLabel;
         this.patches = patches;
+        this.mode = "DMR";
     }
 }
 

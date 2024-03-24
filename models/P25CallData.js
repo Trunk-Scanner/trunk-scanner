@@ -10,6 +10,7 @@ class P25CallData {
         this.talkgroupGroup = talkgroupGroup;
         this.systemLabel = systemLabel;
         this.patches = patches;
+        this.mode = "P25";
     }
 }
 

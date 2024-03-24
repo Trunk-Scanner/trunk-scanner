@@ -12,6 +12,7 @@ class LtrCallData {
         this.talkgroupGroup = talkgroupGroup;
         this.systemLabel = systemLabel;
         this.patches = patches;
+        this.mode = "LTR";
     }
 
     parseTalkgroup(talkgroup) {

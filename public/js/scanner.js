@@ -1,4 +1,4 @@
-let muted = false;
+let paused = false;
 let isPlaying = false; // flag if audio is currently playing
 
 let whiteListEnabled = true;
@@ -13,7 +13,7 @@ let lastCallData = null; // last call received
 document.addEventListener('DOMContentLoaded', function () {
     const socket = io();
     const audioPlayer = document.getElementById('audioPlayer');
-    const muteStream = document.getElementById('muteStream');
+    const pauseStream = document.getElementById('pauseStream');
     const avoidKeyedTalkgroupButton = document.getElementById('avoidKeyedTalkgroup');
     const whiteListEnableToggle = document.getElementById('whiteListEnableToggle');
     const extraInfo = document.getElementById('extraInfo');
@@ -140,8 +140,6 @@ document.addEventListener('DOMContentLoaded', function () {
         isPlaying = false;
         currentTalkgroup = null;
 
-        console.log("Queue length:", audioQueue.length);
-
         if (!isPlaying && audioQueue.length === 0) {
             console.log("Queue is empty and we arnt playing anything");
             setTimeout(() => {
@@ -181,23 +179,23 @@ document.addEventListener('DOMContentLoaded', function () {
 
     toggleStreamButton.addEventListener('click', toggleStream);
 
-    muteStream.addEventListener('click', function() {
-        muted = !muted;
-        audioPlayer.muted = muted;
+    pauseStream.addEventListener('click', function() {
+        paused = !paused;
+        audioPlayer.paused = paused;
 
-        if (muted) {
+        if (paused) {
             beepOn();
-            console.log("Stream muted.");
-            muteStream.textContent = "Unmute";
-            muteStream.classList.remove('btn-primary');
-            muteStream.classList.add('btn-secondary');
+            console.log("Stream paused.");
+            pauseStream.textContent = "Resume";
+            pauseStream.classList.remove('btn-primary');
+            pauseStream.classList.add('btn-secondary');
         } else {
             beepOff();
             playNextInQueue();
-            console.log("Stream unmuted.");
-            muteStream.textContent = "Mute";
-            muteStream.classList.remove('btn-secondary');
-            muteStream.classList.add('btn-primary');
+            console.log("Stream unpuased.");
+            pauseStream.textContent = "Pause";
+            pauseStream.classList.remove('btn-secondary');
+            pauseStream.classList.add('btn-primary');
         }
     });
 
@@ -246,7 +244,7 @@ document.addEventListener('DOMContentLoaded', function () {
         isPlaying = true;
         lightOn();
 
-        if (!muted) {
+        if (!paused) {
             console.log(`Playing audio: TGID: ${data.call.talkgroup}, Frequency: ${data.call.frequency}, Volume: ${audioPlayer.volume}`);
 
             audioPlayer.src = data.audio;
