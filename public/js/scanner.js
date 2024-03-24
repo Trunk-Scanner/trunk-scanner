@@ -145,7 +145,9 @@ document.addEventListener('DOMContentLoaded', function () {
         if (!isPlaying && audioQueue.length === 0) {
             console.log("Queue is empty and we arnt playing anything");
             setTimeout(() => {
-                document.getElementById('source').textContent = "Waiting...";
+                if (!isPlaying) {
+                    document.getElementById('source').textContent = "Waiting...";
+                }
             }, 1500);
         }
 
