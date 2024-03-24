@@ -140,8 +140,10 @@ document.addEventListener('DOMContentLoaded', function () {
         isPlaying = false;
         currentTalkgroup = null;
 
-        if (!isPlaying) {
-            document.getElementById('source').textContent = "Waiting...";
+        if (!isPlaying && audioQueue.length < 0) {
+            setTimeout(() => {
+                document.getElementById('source').textContent = "Waiting...";
+            }, 1500);
         }
 
         playNextInQueue();
