@@ -15,6 +15,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const audioPlayer = document.getElementById('audioPlayer');
     const muteStream = document.getElementById('muteStream');
     const avoidKeyedTalkgroupButton = document.getElementById('avoidKeyedTalkgroup');
+    const whiteListEnableToggle = document.getElementById('whiteListEnableToggle');
     const extraInfo = document.getElementById('extraInfo');
     const queueCounter = document.getElementById('queueCounter');
     const scanner = document.getElementById('scanner');
@@ -28,6 +29,24 @@ document.addEventListener('DOMContentLoaded', function () {
 
     $('#editPresetModal').on('show.bs.modal', function () {
         populateTalkgroupDropdownForEditing();
+    });
+
+    whiteListEnableToggle.addEventListener('click', function() {
+        whiteListEnabled = !whiteListEnabled;
+
+        if (whiteListEnabled) {
+            beepOn();
+            console.log("Whitelist enabled.");
+            whiteListEnableToggle.textContent = "Disable Whitelist";
+            whiteListEnableToggle.classList.remove('btn-danger');
+            whiteListEnableToggle.classList.add('btn-success');
+        } else {
+            beepOff();
+            console.log("Whitelist disabled.");
+            whiteListEnableToggle.textContent = "Enable Whitelist";
+            whiteListEnableToggle.classList.remove('btn-success');
+            whiteListEnableToggle.classList.add('btn-danger');
+        }
     });
 
     document.getElementById('addPresetButton').addEventListener('click', function() {
