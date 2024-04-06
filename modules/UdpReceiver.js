@@ -1,6 +1,7 @@
 const dgram = require('dgram');
 const fs = require('fs');
 const path = require('path');
+const P25CallData = require('../models/P25CallData');
 
 class UdpReceiver {
     constructor(io, config, baseUploadPath) {
@@ -51,16 +52,31 @@ class UdpReceiver {
     }
 
     async handleIncomingAudio(msg, rinfo) {
+        let call;
+
         // TODO: do this properly
         if (this.debug) {
             console.log(`Received audio from ${rinfo.address}:${rinfo.port}`);
         }
 
-        const filePath = path.join(this.baseUploadPath, `udp_audio_${Date.now()}.wav`);
+        const filePath = path.join(this.baseUploadPath, `udp_audio_${Date.now()}.wav`); //TODO: Temporary
         await fs.promises.writeFile(filePath, msg);
 
+        // Fake p25 call
+        call = new P25CallData({
+            key: 0,
+            system: 'Unknown',
+            dateTime: Date.now(),
+            talkgroup: 'Unknown',
+            source: "UDP CALL",
+            frequency: "000000000",
+            talkgroupLabel: 'Unknown',
+            talkgroupGroup: 'Unknown',
+            systemLabel: 'Unknown',
+            patches: [],
+            mode: 'P25_UDP'
+        });
 
-        const call = {}; // TODO: Check call type or make up a fake p25call or som
         const relativeAudioPath = `/uploads/${path.relative(this.baseUploadPath, filePath)}`;
         this.io.emit('newAudio', { audio: relativeAudioPath, call: call });
     }
