@@ -2,7 +2,7 @@ const { Client, GatewayIntentBits } = require('discord.js');
 const { joinVoiceChannel, createAudioPlayer, createAudioResource, AudioPlayerStatus, getVoiceConnection } = require('@discordjs/voice');
 
 class DiscordBot {
-    constructor(token, channel, systemUrl) {
+    constructor(token, channel, systemUrl, whitelist) {
         this.client = new Client({
             intents: [
                 GatewayIntentBits.Guilds,
@@ -14,6 +14,7 @@ class DiscordBot {
         this.token = token;
         this.voiceChannelId = channel;
         this.systemUrl = systemUrl;
+        this.whitelist = whitelist;
 
         this.player = createAudioPlayer();
         this.queue = [];
@@ -134,6 +135,10 @@ class DiscordBot {
             voiceConnection.destroy();
             console.log('Left the voice channel in guild:', guildId);
         }
+    }
+
+    isTalkgroupWhitelisted(talkgroupId) {
+        return this.whitelist.some(whitelistItem => whitelistItem.id === talkgroupId);
     }
 }
 
