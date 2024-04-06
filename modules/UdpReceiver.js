@@ -29,7 +29,10 @@ class UdpReceiver {
         });
 
         this.server.on('message', (msg, rinfo) => {
-            console.log(`UDP Server got: ${msg} from ${rinfo.address}:${rinfo.port}`);
+            if (this.debug) {
+                console.log(`UDP Server got: ${msg} from ${rinfo.address}:${rinfo.port}`);
+            }
+
             this.handleIncomingAudio(msg, rinfo).then(r => {
                 if (this.debug) {
                     console.log('Audio handled successfully');

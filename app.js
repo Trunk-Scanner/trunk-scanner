@@ -31,7 +31,7 @@ if (argv.config) {
 
     const webServer = new WebServer(config);
 
-    if ((!config.sdrtrunk || !config.sdrtrunk.enabled) && (!config.udp || !config.udp.enabled)) {
+    if ((!config.sdrtrunk || !config.sdrtrunk.enabled) && (!config.udp || !config.udp.receive.enabled)) {
         console.log('SDRTrunk or UDP not enabled or no config found for them; Must have at least one API for this to be useful');
         process.exit(1);
     }
