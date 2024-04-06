@@ -1,6 +1,5 @@
 function isP25Call(call) {
     if (!call.talkgroup.length <= 5 && parseInt(call.talkgroup) < 65535) {
-        call.mode = "P25"
         return true;
     }
 
@@ -10,7 +9,6 @@ function isP25Call(call) {
 
 function isDmrCall(call) {
     if (!call.talkgroup.length <= 8 && parseInt(call.talkgroup) < 16777215) {
-        call.mode = "DMR";
         return true;
     }
 
@@ -42,7 +40,6 @@ function isLtrCall(call) {
         return false;
     }
 
-    call.mode = "LTR";
     return true;
 }
 

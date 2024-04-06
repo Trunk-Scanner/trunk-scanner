@@ -67,13 +67,16 @@ class SdrTrunkApi {
 
             if (req.files && req.files.length > 0 && this.io) {
                 if (callData.isLtrCall(req.body)){
+                    req.body.mode = "LTR_SDRTRUNK";
                     await this.handleCall(new LtrCallData(req.body), req);
                 } else if (callData.isP25Call(req.body)) {
+                    req.body.mode = "P25_SDRTRUNK";
                     await this.handleCall(new P25CallData(req.body), req);
                 } else if (callData.isDmrCall(req.body)){
+                    req.body.mode = "DMR_SDRTRUNK";
                     await this.handleCall(new DmrCallData(req.body), req);
                 } else {
-                    req.body.mode = "UNKNOWN";
+                    req.body.mode = "UNK_SDRTRUNK";
                     await this.handleCall(req.body, req);
                 }
             }

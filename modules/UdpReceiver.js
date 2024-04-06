@@ -59,13 +59,13 @@ class UdpReceiver {
             console.log(`Received audio from ${rinfo.address}:${rinfo.port}`);
         }
 
-        const filePath = path.join(this.baseUploadPath, `udp_audio_${Date.now()}.wav`); //TODO: Temporary
+        const filePath = path.join(this.baseUploadPath, `udp_audio_${Date.now()}.wav`); // TODO: Temporary
         await fs.promises.writeFile(filePath, msg);
 
         // Fake p25 call
         call = new P25CallData({
             key: 0,
-            system: 'Unknown',
+            system: 'UDP CALL',
             dateTime: Date.now(),
             talkgroup: 'Unknown',
             source: "UDP CALL",

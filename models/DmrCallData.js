@@ -1,5 +1,5 @@
 class DmrCallData {
-    constructor({ key, system, dateTime, talkgroup, source, frequency, talkgroupLabel, talkgroupGroup, systemLabel, patches }) {
+    constructor({ key, system, dateTime, talkgroup, source, frequency, talkgroupLabel, talkgroupGroup, systemLabel, patches, mode }) {
         this.key = key;
         this.system = system;
         this.dateTime = dateTime;
@@ -10,7 +10,7 @@ class DmrCallData {
         this.talkgroupGroup = talkgroupGroup;
         this.systemLabel = systemLabel;
         this.patches = patches;
-        this.mode = "DMR";
+        this.mode = mode;
     }
 }
 
