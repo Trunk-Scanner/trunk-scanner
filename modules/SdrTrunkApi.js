@@ -10,6 +10,7 @@ const LtrCallData = require("../models/LtrCallData");
 const P25CallData = require("../models/P25CallData");
 const DmrCallData = require("../models/DmrCallData");
 const DiscordBot = require("./DiscordBot");
+const {transcribeAudio} = require("./transcribeAudio");
 
 class SdrTrunkApi {
     constructor(io, config, baseUploadPath) {
@@ -95,19 +96,33 @@ class SdrTrunkApi {
         const audioPath = path.join(this.baseUploadPath, call.system, call.talkgroup, datePath, `${timePath}.mp3`);
 
         if (this.discordWebhookEnable && this.discordWebhook) {
-            await this.discordWebhook.sendCallMessage(call);
+            // Disable for now, look at again later
+            //await this.discordWebhook.sendCallMessage(call);
         }
 
         console.log(req.body.mode, "Call Received; TG:", call.talkgroup, "Freq:", call.frequency, "Source:", call.source, "System:", call.system, "DateTime:", call.dateTime);
         try {
             await this.storeFile(originalPath, audioPath);
             const relativeAudioPath = `/uploads/${path.relative(this.baseUploadPath, audioPath)}`;
+
+            this.io.emit('newAudio', { audio: relativeAudioPath, call: call });
+
             if (this.discordBot) {
                 if (this.discordBot.isTalkgroupWhitelisted(call.talkgroup) || this.config.discord.bot.allowAll) {
                     this.discordBot.enqueue(relativeAudioPath, call.talkgroupLabel, call.source);
                 }
             }
-            this.io.emit('newAudio', { audio: relativeAudioPath, call: call });
+
+            if (this.discordWebhookEnable && this.discordWebhook && this.config.transcribe && this.config.transcribe.assemblyai.enabled) {
+                const transcription = await transcribeAudio(audioPath, this.config.transcribe.assemblyai.apiKey);
+                if (transcription === null || transcription === undefined || transcription === "") {
+                    console.error("Empty transcription received from AssemblyAI; possible bug; skipping");
+                    return;
+                }
+
+                await this.discordWebhook.sendTranscriptionMessage(call, transcription);
+            }
+
         } catch (err) {
             console.error("Failed to store file:", err);
         }

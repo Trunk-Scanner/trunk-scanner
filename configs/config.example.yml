@@ -6,6 +6,23 @@ sdrtrunk: # SDRTrunk Server. May work with other software's out there, untested
   port: 3000
   bindAddress: 0.0.0.0
 
+transcribe:
+  assemblyai:
+    enabled: true
+    apiKey: "e1cd73104f0f4b7480522febfa9aefd2"
+
+udp:
+  receive: # Alpha
+    enabled: false
+    port: 5000
+    bindAddress: 0.0.0.0
+    debug: false
+  send: # Not implemented yet
+    enabled: false
+    port: 5001
+    bindAddress: 0.0.0.0
+    debug: false
+
 discord:
   bot:
     enabled: false

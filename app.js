@@ -27,7 +27,7 @@ let config = {
 
 if (argv.config) {
     const config = configLoader.loadConfig(argv.config);
-    const baseUploadPath = path.join(__dirname, '../uploads');
+    const baseUploadPath = path.join(__dirname, 'uploads');
 
     const webServer = new WebServer(config);
 
@@ -36,7 +36,7 @@ if (argv.config) {
         process.exit(1);
     }
 
-    new SdrTrunkServer(webServer.io, config);
+    new SdrTrunkServer(webServer.io, config, baseUploadPath);
     new UdpReceiver(webServer.io, config, baseUploadPath);
 } else {
     console.error('No config file specified');
