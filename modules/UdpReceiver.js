@@ -65,7 +65,7 @@ class UdpReceiver {
         // Fake p25 call
         call = new P25CallData({
             key: 0,
-            system: 'UDP CALL',
+            system: `udp:${this.config.receive.bindAddress}:${this.config.receive.port}`,
             dateTime: Date.now(),
             talkgroup: 'Unknown',
             source: "UDP CALL",
