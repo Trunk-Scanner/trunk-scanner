@@ -1,5 +1,8 @@
 import { Codeplug } from '/public/js/models/Codeplug.js';
 
+const DEFAULT_MODEL = "APX7500";
+const DEFAULT_SERIAL = "123ABC1234";
+
 export class ApxRadioApp {
     constructor() {
         this.codeplug = new Codeplug();
@@ -54,11 +57,13 @@ export class ApxRadioApp {
         if (codeplug.modelNumber.length !== 7){
             result = false;
             this.iserrorstate = true;
+            codeplug.modelNumber = DEFAULT_MODEL;
         }
 
         if (codeplug.serialNumber.length !== 10){
             result = false;
             this.iserrorstate = true;
+            codeplug.serialNumber = DEFAULT_SERIAL;
         }
 
         if (this.isRadioKilled(codeplug)){

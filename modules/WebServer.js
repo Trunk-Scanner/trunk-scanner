@@ -8,6 +8,7 @@ class WebServer {
     constructor(config) {
         this.port = config.web.port || 4000;
         this.bindAddress = config.web.bindAddress || "0.0.0.0";
+        this.debug = config.web.debug || false;
 
         this.app = express();
         this.server = http.createServer(this.app);
@@ -25,11 +26,13 @@ class WebServer {
             res.render("index", { groups });
         });
 
-        this.app.get('/apxRadio', (req, res) => {
-            const groups = config.groups;
+        if (this.debug) {
+            this.app.get('/apxRadio', (req, res) => {
+                const groups = config.groups;
 
-            res.render("apxRadio", { groups });
-        });
+                res.render("apxRadio", {groups});
+            });
+        }
 
         this.app.get('/api/recordings', (req, res) => {
             const { system, talkgroup, date } = req.query; // Filters from query params
