@@ -2,6 +2,7 @@ const dgram = require('dgram');
 const fs = require('fs');
 const path = require('path');
 const P25CallData = require('../models/P25CallData');
+const UdpSender = require("./UdpSender");
 
 class UdpReceiver {
     constructor(io, config, baseUploadPath) {
@@ -15,6 +16,10 @@ class UdpReceiver {
         this.server = dgram.createSocket('udp4');
 
         this.lastPacketTimestamp = 0;
+
+        if (config.udp.send && config.udp.send.enabled) {
+            this.sender = new UdpSender(config.udp.send.dstAddress, config.udp.send.port, config.udp.send.debug);
+        }
 
         if (config.udp.receive && config.udp.receive.enabled) {
             this.setupUdpServer();
@@ -81,6 +86,10 @@ class UdpReceiver {
         if (!msg) {
             console.log('Invalid call or message');
             return;
+        }
+
+        if (this.sender) {
+            this.sender.send(msg);
         }
 
         this.io.emit('new_call', { audio: msg, call: call, type: "WAV_STREAM" });
