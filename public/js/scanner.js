@@ -1,5 +1,6 @@
 let paused = false;
 let isPlaying = false; // flag if audio is currently playing
+let isPcmPlaying = false; // flag if PCM audio is currently playing
 
 let whiteListEnabled = true;
 let streamEnabled = false;
@@ -10,7 +11,7 @@ let avoidedTalkgroups = []; // talkgroups to avoid only during the current sessi
 let currentTalkgroup = null; // talkgroup currently being played
 let lastCallData = null; // last call received
 
-let player;
+let player; // PCMPlayer instance for UDP audio stream
 
 document.addEventListener('DOMContentLoaded', function () {
     const socket = io();
@@ -212,41 +213,43 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     socket.on('new_call', function(data) {
-
-        // TODO: Remove remove remove. For debug use only
-        if (!player) {
-            console.error("Player not initialized.");
-        }
-
-        if (data.type === "WAV_STREAM" && player) {
-            // TODO: Complete this
-            let audio = new Uint8Array(data.audio);
-
-            console.log("New WAV STREAM call.");
-            player.feed(audio);
-
-            return;
-        }
-
-        console.log("New call received.");
         if (!streamEnabled) return;
 
-        if (!isTalkgroupWhitelisted(data.call.talkgroup) && whiteListEnabled){
-            console.log(`Talkgroup ${data.call.talkgroup} is not whitelisted. Skipping...`);
-            return;
-        }
+        if (data.type === "WAV_STREAM" && player) {
+            let audio = new Uint8Array(data.audio);
+            console.log("New WAV_STREAM call.");
 
-        // Convert some ugly values to be more user friendly
-        data.call.frequency = hzToMhz(data.call.frequency);
-        data.call.dateTime = parseTimestamp(data.call.dateTime);
+            if (isPlaying) { // TODO: Add que system for PCM audio
+                console.log("Audio skipped from UDP; something already playing");
+                return;
+            }
 
-        if (isPlaying) {
-            console.log("Audio queued.");
-            audioQueue.push(data); // Add to queue if something is playing
-        } else {
-            updateInfoAndPlay(data); // Play immediately if nothing is playing
+            player.feed(audio);
+        } else if (data.type === "AUDIO_URL") {
+            console.log("New AUDIO_URL call received.");
+
+            if (isPcmPlaying) { // TODO: Add que system for PCM audio
+                console.log("Audio skipped from URL; PCM already playing");
+                return;
+            }
+
+            if (!isTalkgroupWhitelisted(data.call.talkgroup) && whiteListEnabled){
+                console.log(`Talkgroup ${data.call.talkgroup} is not whitelisted. Skipping...`);
+                return;
+            }
+
+            // Convert some ugly values to be more user friendly
+            data.call.frequency = hzToMhz(data.call.frequency);
+            data.call.dateTime = parseTimestamp(data.call.dateTime);
+
+            if (isPlaying) {
+                console.log("Audio queued.");
+                audioQueue.push(data); // Add to queue if something is playing
+            } else {
+                updateInfoAndPlay(data); // Play immediately if nothing is playing
+            }
+            updateQueueCounter();
         }
-        updateQueueCounter();
     });
 
     const updateInfoAndPlay = (data) => {
@@ -282,10 +285,12 @@ document.addEventListener('DOMContentLoaded', function () {
     };
 
     function audioStopped() {
+        isPcmPlaying = false;
         console.debug("STREAM audio stopped");
     }
 
     function audioStarted() {
+        isPcmPlaying = true;
         console.debug("STREAM audio started");
     }
 

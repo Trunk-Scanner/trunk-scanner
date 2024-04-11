@@ -9,10 +9,12 @@ class UdpReceiver {
         this.config = config;
         this.baseUploadPath = baseUploadPath;
         this.udpPort = config.udp.port || 5000;
-
+        this.hangtime = config.udp.receive.hangtime || 5000;
         this.debug = config.udp.receive.debug;
 
         this.server = dgram.createSocket('udp4');
+
+        this.lastPacketTimestamp = 0;
 
         if (config.udp.receive && config.udp.receive.enabled) {
             this.setupUdpServer();
@@ -52,22 +54,34 @@ class UdpReceiver {
     }
 
     async handleIncomingAudio(msg, rinfo) {
-        // Fake p25 call
-        let call = new P25CallData({
-            key: 0,
-            system: `udp:${rinfo.address}:${rinfo.port}`,
-            dateTime: Date.now(),
-            talkgroup: 'Unknown',
-            source: "UDP CALL",
-            frequency: "000000000",
-            talkgroupLabel: 'Unknown',
-            talkgroupGroup: 'Unknown',
-            systemLabel: 'Unknown',
-            patches: [],
-            mode: 'P25_UDP'
-        });
+        const currentTime = Date.now();
+        const timeSinceLastPacket = currentTime - this.lastPacketTimestamp;
+        let call;
 
-        console.log(call.mode, "Call Received; TG:", call.talkgroup, "Freq:", call.frequency, "Source:", call.source, "System:", call.system, "DateTime:", call.dateTime);
+        if (timeSinceLastPacket > this.hangtime) {
+            // Fake p25 call
+            call = new P25CallData({
+                key: 0,
+                system: `udp:${rinfo.address}:${rinfo.port}`,
+                dateTime: Date.now(),
+                talkgroup: 'Unknown',
+                source: "UDP CALL",
+                frequency: "000000000",
+                talkgroupLabel: 'Unknown',
+                talkgroupGroup: 'Unknown',
+                systemLabel: 'Unknown',
+                patches: [],
+                mode: 'P25_UDP'
+            });
+
+            console.log(call.mode, "Call Received; TG:", call.talkgroup, "Freq:", call.frequency, "Source:", call.source, "System:", call.system, "DateTime:", call.dateTime);
+            this.lastPacketTimestamp = currentTime;
+        }
+
+        if (!msg) {
+            console.log('Invalid call or message');
+            return;
+        }
 
         this.io.emit('new_call', { audio: msg, call: call, type: "WAV_STREAM" });
     }
