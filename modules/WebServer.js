@@ -14,6 +14,8 @@ class WebServer {
         this.server = http.createServer(this.app);
         this.io = new Server(this.server);
 
+        this.connectedUsers = 0;
+
         this.app.set('views', path.join(__dirname, '../views'));
         this.app.set('view engine', 'ejs');
 
@@ -23,7 +25,7 @@ class WebServer {
         this.app.get('/', (req, res) => {
             const groups = config.groups;
 
-            res.render("index", { groups });
+            res.render("index", { groups, connectedUsers: this.connectedUsers });
         });
 
         if (this.debug) {
@@ -65,14 +67,30 @@ class WebServer {
         });
 
         this.io.on('connection', (socket) => {
+            this.connectedUsers++;
+            this.emitUserCount();
+
+            if (this.debug) {
+                console.log(`A user connected. Total connected users: ${this.connectedUsers}`);
+            }
+
             socket.on('disconnect', () => {
-                /* stub */
+                this.connectedUsers--;
+                this.emitUserCount();
+
+                if (this.debug) {
+                    console.log(`A user disconnected. Total connected users: ${this.connectedUsers}`);
+                }
             });
         });
 
         this.server.listen(this.port, () => {
             console.log(`Web server listening at http://localhost:${this.port}`);
         });
+    }
+
+    emitUserCount() {
+        this.io.emit('userCount', this.connectedUsers);
     }
 }
 
