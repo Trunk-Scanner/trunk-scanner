@@ -10,6 +10,8 @@ let avoidedTalkgroups = []; // talkgroups to avoid only during the current sessi
 let currentTalkgroup = null; // talkgroup currently being played
 let lastCallData = null; // last call received
 
+let player;
+
 document.addEventListener('DOMContentLoaded', function () {
     const socket = io();
     const audioPlayer = document.getElementById('audioPlayer');
@@ -155,7 +157,17 @@ document.addEventListener('DOMContentLoaded', function () {
     const toggleStreamButton = document.getElementById('toggleStream');
 
     const toggleStream = () => {
+
         streamEnabled = !streamEnabled;
+
+        player = new PCMPlayer({
+            encoding: '16bitInt',
+            channels: 1,
+            sampleRate: 8000,
+            flushingTime: 2000,
+            onAudioEnd: audioStopped,
+            onAudioStart: audioStarted
+        });
 
         if (streamEnabled) {
             beepOn();
@@ -199,7 +211,23 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
-    socket.on('newAudio', function(data) {
+    socket.on('new_call', function(data) {
+
+        // TODO: Remove remove remove. For debug use only
+        if (!player) {
+            console.error("Player not initialized.");
+        }
+
+        if (data.type === "WAV_STREAM" && player) {
+            // TODO: Complete this
+            let audio = new Uint8Array(data.audio);
+
+            console.log("New WAV STREAM call.");
+            player.feed(audio);
+
+            return;
+        }
+
         console.log("New call received.");
         if (!streamEnabled) return;
 
@@ -252,6 +280,14 @@ document.addEventListener('DOMContentLoaded', function () {
             audioPlayer.play().catch(e => console.error('Error playing audio:', e));
         }
     };
+
+    function audioStopped() {
+        console.debug("STREAM audio stopped");
+    }
+
+    function audioStarted() {
+        console.debug("STREAM audio started");
+    }
 
     function updateVolumeDisplay() {
         const volumePercentage = Math.round(audioPlayer.volume * 100);

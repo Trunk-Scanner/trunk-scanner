@@ -99,8 +99,8 @@ class SdrTrunkApi {
         const audioPath = path.join(this.baseUploadPath, call.system, call.talkgroup, datePath, `${timePath}.mp3`);
 
         if (this.discordWebhookEnable && this.discordWebhook) {
-            // Disable for now, look at again later
-            //await this.discordWebhook.sendCallMessage(call);
+            // TODO: Disable for now, look at again later
+            // await this.discordWebhook.sendCallMessage(call);
         }
 
         console.log(req.body.mode, "Call Received; TG:", call.talkgroup, "Freq:", call.frequency, "Source:", call.source, "System:", call.system, "DateTime:", call.dateTime);
@@ -108,7 +108,7 @@ class SdrTrunkApi {
             await this.storeFile(originalPath, audioPath);
             const relativeAudioPath = `/uploads/${path.relative(this.baseUploadPath, audioPath)}`;
 
-            this.io.emit('newAudio', { audio: relativeAudioPath, call: call });
+            this.io.emit("new_call", { audio: relativeAudioPath, call: call, type: "AUDIO_URL" });
 
             if (this.discordBot) {
                 if (this.discordBot.isTalkgroupWhitelisted(call.talkgroup) || this.config.discord.bot.allowAll) {
