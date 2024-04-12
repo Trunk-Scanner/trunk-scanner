@@ -58,6 +58,7 @@ export class ApxRadioApp {
 
                 if (this.isplaying) {
                     console.log("Audio skipped from URL; something already playing");
+                    return;
                 }
 
                 if (data.call.talkgroup !== currentChannel.Tgid && !this.isscanenabled){
