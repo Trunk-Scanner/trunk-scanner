@@ -9,7 +9,7 @@ export class Codeplug {
         this.FlickerCode = '';
         this.RadioKilled = false;
         this.TrunkingInhibited = false;
-        this.TtsEnable = false;
+        this.TtsEnabled = false;
     }
 
     load(data) {

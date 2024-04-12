@@ -387,11 +387,11 @@ export class ApxRadioApp {
         document.getElementById("line2").innerText = currentChannel.Alias;
         document.getElementById("line3").innerText = ``;
 
-        if (sayZone) {
+        if (sayZone && this.codeplug.TtsEnabled) {
             responsiveVoice.speak(currentZone.Name, `US English Male`, {rate: .8});
         }
 
-        if (sayChannel) {
+        if (sayChannel && this.codeplug.TtsEnabled) {
             responsiveVoice.speak(currentChannel.Alias, `US English Male`, {rate: .8});
         }
     }
@@ -441,8 +441,10 @@ export class ApxRadioApp {
 
         this.isstarted = true;
 
-        responsiveVoice.speak(currentZone.Name, `US English Male`,  {rate: .8});
-        responsiveVoice.speak(currentChannel.Alias, `US English Male`,  {rate: .8});
+        if (this.codeplug.TtsEnabled) {
+            responsiveVoice.speak(currentZone.Name, `US English Male`, {rate: .8});
+            responsiveVoice.speak(currentChannel.Alias, `US English Male`, {rate: .8});
+        }
 
 
         await sleep(2000);
