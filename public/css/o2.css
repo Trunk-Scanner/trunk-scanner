@@ -108,6 +108,43 @@ html, body {
     height: 27px;
 }
 
+.homeButton {
+    position: absolute;
+    border-radius: 50%;
+    cursor: pointer;
+    top: 81%;
+    left: 59%;
+    transform: translate(-50%, -50%);
+    z-index: 1;
+    font-size: 25px;
+    font-family: Helvetica, serif;
+    font-weight: bold;
+    text-align: center;
+    color: transparent;
+    background: transparent;
+    padding: 0;
+    margin: 0;
+    border: 0;
+}
+
+.softButton1 {
+    position: absolute;
+    cursor: pointer;
+    top: 81%;
+    left: 25%;
+    transform: translate(-50%, -50%);
+    z-index: 1;
+    font-size: 25px;
+    font-family: Helvetica, serif;
+    font-weight: bold;
+    text-align: center;
+    color: transparent;
+    background: transparent;
+    padding: 0;
+    margin: 0;
+    border: 0;
+}
+
 .PTT {
     position: absolute;
     cursor: pointer;
@@ -125,6 +162,63 @@ html, body {
     margin: 0;
     border: 0;
     height: 175px;
+}
+
+.channelButton {
+    position: absolute;
+    border-radius: 100%;
+    cursor: pointer;
+    top: 62%;
+    left: 90%;
+    transform: translate(-50%, -50%);
+    z-index: 1;
+    font-size: 35px;
+    font-family: Helvetica, serif;
+    font-weight: bold;
+    text-align: center;
+    color: transparent;
+    background: transparent;
+    padding: 0;
+    margin: 0;
+    border: 0;
+}
+
+.zoneUp {
+    position: absolute;
+    border-radius: 15%;
+    cursor: pointer;
+    top: 21%;
+    left: 58.5%;
+    transform: translate(-50%, -50%);
+    z-index: 1;
+    font-size: 24px;
+    font-family: Helvetica, serif;
+    font-weight: bold;
+    text-align: center;
+    color: transparent;
+    background: transparent;
+    padding: 0;
+    margin: 0;
+    border: 0;
+}
+
+.zoneDown {
+    position: absolute;
+    border-radius: 15%;
+    cursor: pointer;
+    top: 41%;
+    left: 58.5%;
+    transform: translate(-50%, -50%);
+    z-index: 1;
+    font-size: 24px;
+    font-family: Helvetica, serif;
+    font-weight: bold;
+    text-align: center;
+    color: transparent;
+    background: transparent;
+    padding: 0;
+    margin: 0;
+    border: 0;
 }
 
 .ptt_indicator {
