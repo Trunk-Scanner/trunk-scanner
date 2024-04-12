@@ -102,7 +102,11 @@ export class ApxRadioApp {
 
     isScanlistInZone() {
         const currentZone = this.codeplug.Zones[this.currentZoneIndex];
-        const hasScanList = currentZone && currentZone.ScanListName !== null && currentZone.ScanListName !== undefined;
+        const hasScanList = currentZone
+            && currentZone.ScanListName !== null
+            && currentZone.ScanListName !== undefined
+            && currentZone.ScanListName !== "<None>";
+
         return hasScanList;
     }
 
@@ -325,11 +329,11 @@ export class ApxRadioApp {
 
 
     zoneUp() {
-        this.buttonBeep();
-
         if (this.currentZoneIndex < this.codeplug.Zones.length - 1) {
+            this.buttonBeep();
             this.currentZoneIndex++;
         } else {
+            this.buttonBonk();
             this.currentZoneIndex = 0;
         }
         this.currentChannelIndex = 0;
@@ -340,11 +344,11 @@ export class ApxRadioApp {
     }
 
     zoneDown() {
-        this.buttonBeep();
-
         if (this.currentZoneIndex > 0) {
+            this.buttonBeep();
             this.currentZoneIndex--;
         } else {
+            this.buttonBonk();
             this.currentZoneIndex = this.codeplug.Zones.length - 1;
         }
         this.currentChannelIndex = 0;
@@ -355,13 +359,13 @@ export class ApxRadioApp {
     }
 
     nextChannel() {
-        this.buttonBeep();
-
         let currentZone = this.codeplug.Zones[this.currentZoneIndex];
 
         if (this.currentChannelIndex < currentZone.Channels.length - 1) {
+            this.buttonBeep();
             this.currentChannelIndex++;
         } else {
+            this.buttonBonk();
             this.currentChannelIndex = 0;
         }
 
@@ -440,6 +444,9 @@ export class ApxRadioApp {
         document.getElementById("menu1").innerText = "Scan";
 
         this.isstarted = true;
+
+        this.buttonBeep();
+        await sleep(200);
 
         if (this.codeplug.TtsEnabled) {
             responsiveVoice.speak(currentZone.Name, `US English Male`, {rate: .8});

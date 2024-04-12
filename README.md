@@ -6,7 +6,13 @@
 
 Remotely listen to SDR software and playback recordings.
 
+### Simple UI:
 ![main pic](./images/main.png)
+
+### APX Emulator:
+![apx pic](./images/apx.png)
+
+The APX emulator requires you to create a codeplug via the Trunk Scanner CPS to use.
 
 ## Getting started
 
