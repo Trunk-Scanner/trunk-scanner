@@ -22,6 +22,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const extraInfo = document.getElementById('extraInfo');
     const queueCounter = document.getElementById('queueCounter');
     const scanner = document.getElementById('scanner');
+    const usersCount = document.getElementById('usersCount');
 
     updateVolumeDisplay();
     loadPresets();
@@ -210,6 +211,10 @@ document.addEventListener('DOMContentLoaded', function () {
             pauseStream.classList.remove('btn-secondary');
             pauseStream.classList.add('btn-primary');
         }
+    });
+
+    socket.on('userCount', function(count) {
+        usersCount.textContent = `L: ${count}`;
     });
 
     socket.on('new_call', function(data) {

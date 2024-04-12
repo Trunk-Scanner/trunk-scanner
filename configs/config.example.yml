@@ -12,15 +12,15 @@ transcribe:
     apiKey: "xx"
 
 udp:
-  receive: # Alpha
+  receive:
     enabled: false
     port: 5000
     bindAddress: 0.0.0.0
     debug: false
-  send: # Not implemented yet
+  send:
     enabled: false
     port: 5001
-    bindAddress: 0.0.0.0
+    dstAddress: 0.0.0.0
     debug: false
 
 discord:

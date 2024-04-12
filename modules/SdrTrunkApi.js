@@ -11,6 +11,7 @@ const P25CallData = require("../models/P25CallData");
 const DmrCallData = require("../models/DmrCallData");
 const DiscordBot = require("./DiscordBot");
 const {transcribeAudio} = require("./transcribeAudio");
+const UdpSender = require("./UdpSender");
 
 class SdrTrunkApi {
     constructor(io, config, baseUploadPath) {
@@ -29,6 +30,10 @@ class SdrTrunkApi {
 
         if (config.discord.bot) {
             this.discordBot = new DiscordBot(config.discord.bot.token, config.discord.bot.channel, config.discord.bot.systemUrl, config.discord.bot.whitelist);
+        }
+
+        if (config.udp.send && config.udp.send.enabled) {
+            this.sender = new UdpSender(config.udp.send.dstAddress, config.udp.send.port, config.udp.send.debug);
         }
 
         this.baseUploadPath = baseUploadPath;
@@ -107,6 +112,11 @@ class SdrTrunkApi {
         try {
             await this.storeFile(originalPath, audioPath);
             const relativeAudioPath = `/uploads/${path.relative(this.baseUploadPath, audioPath)}`;
+
+            //TODO: Implement this later
+/*            if (this.sender) {
+                this.sender.send(msg);
+            }*/
 
             this.io.emit("new_call", { audio: relativeAudioPath, call: call, type: "AUDIO_URL" });
 

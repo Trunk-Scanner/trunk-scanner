@@ -1,0 +1,382 @@
+html, body {
+    width: 100%;
+    height: 100%;
+    background: grey;
+}
+
+.bg-red {
+    background-color: red;
+}
+
+.bg-green {
+    background-color: green;
+}
+
+.custom-bordered-cell {
+    border: 3px solid #ccc;
+    padding: 8px;
+}
+
+.container {
+    position: relative;
+    display: inline-block;
+}
+
+.image {
+    display: block;
+    height: 100%;
+    width: 100%;
+}
+
+.line1 {
+    position: absolute;
+    top: 31%;
+    left: 37.5%;
+    transform: translate(-50%, -50%);
+    z-index: 1;
+    color: black;
+    font-size: 20px;
+    font-family: Helvetica, serif;
+    font-weight: bold;
+    text-align: center;
+}
+
+.line2 {
+    position: absolute;
+    top: 39%;
+    left: 37.5%;
+    transform: translate(-50%, -50%);
+    z-index: 1;
+    color: black;
+    font-size: 20px;
+    font-family: Helvetica, serif;
+    font-weight: bold;
+    text-align: center;
+}
+
+.line3 {
+    position: absolute;
+    top: 49%;
+    left: 37.6%;
+    transform: translate(-50%, -50%);
+    z-index: 1;
+    color: black;
+    font-size: 17px;
+    font-family: Helvetica, serif;
+    font-weight: bold;
+    text-align: center;
+    background-color: white;
+    width: 232px;
+}
+
+.pwr_button {
+    position: absolute;
+    border-radius: 50%;
+    cursor: pointer;
+    top: 23%;
+    left: 13%;
+    transform: translate(-50%, -50%);
+    z-index: 1;
+    font-size: 25px;
+    font-family: Helvetica, serif;
+    font-weight: bold;
+    text-align: center;
+    color: transparent;
+    background: transparent;
+    padding: 0;
+    margin: 0;
+    border: 0;
+}
+
+.emerg_button {
+    position: absolute;
+    border-radius: 100%;
+    cursor: pointer;
+    top: 20%;
+    left: 88%;
+    transform: translate(-50%, -50%);
+    z-index: 1;
+    font-size: 30px;
+    font-family: Helvetica, serif;
+    font-weight: bold;
+    text-align: center;
+    color: transparent;
+    background: transparent;
+    padding: 0;
+    margin: 0;
+    border: 0;
+    height: 27px;
+}
+
+.homeButton {
+    position: absolute;
+    border-radius: 50%;
+    cursor: pointer;
+    top: 81%;
+    left: 59%;
+    transform: translate(-50%, -50%);
+    z-index: 1;
+    font-size: 25px;
+    font-family: Helvetica, serif;
+    font-weight: bold;
+    text-align: center;
+    color: transparent;
+    background: transparent;
+    padding: 0;
+    margin: 0;
+    border: 0;
+}
+
+.softButton1 {
+    position: absolute;
+    cursor: pointer;
+    top: 81%;
+    left: 25%;
+    transform: translate(-50%, -50%);
+    z-index: 1;
+    font-size: 25px;
+    font-family: Helvetica, serif;
+    font-weight: bold;
+    text-align: center;
+    color: transparent;
+    background: transparent;
+    padding: 0;
+    margin: 0;
+    border: 0;
+}
+
+.PTT {
+    position: absolute;
+    cursor: pointer;
+    top: 150%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1;
+    font-size: 13px;
+    font-family: Helvetica, serif;
+    font-weight: bold;
+    text-align: center;
+    color: black;
+    background: white;
+    padding: 0;
+    margin: 0;
+    border: 0;
+    height: 175px;
+}
+
+.channelButton {
+    position: absolute;
+    border-radius: 100%;
+    cursor: pointer;
+    top: 62%;
+    left: 90%;
+    transform: translate(-50%, -50%);
+    z-index: 1;
+    font-size: 35px;
+    font-family: Helvetica, serif;
+    font-weight: bold;
+    text-align: center;
+    color: transparent;
+    background: transparent;
+    padding: 0;
+    margin: 0;
+    border: 0;
+}
+
+.zoneUp {
+    position: absolute;
+    border-radius: 15%;
+    cursor: pointer;
+    top: 21%;
+    left: 58.5%;
+    transform: translate(-50%, -50%);
+    z-index: 1;
+    font-size: 24px;
+    font-family: Helvetica, serif;
+    font-weight: bold;
+    text-align: center;
+    color: transparent;
+    background: transparent;
+    padding: 0;
+    margin: 0;
+    border: 0;
+}
+
+.zoneDown {
+    position: absolute;
+    border-radius: 15%;
+    cursor: pointer;
+    top: 41%;
+    left: 58.5%;
+    transform: translate(-50%, -50%);
+    z-index: 1;
+    font-size: 24px;
+    font-family: Helvetica, serif;
+    font-weight: bold;
+    text-align: center;
+    color: transparent;
+    background: transparent;
+    padding: 0;
+    margin: 0;
+    border: 0;
+}
+
+.ptt_indicator {
+    border-radius: 33%;
+    width: 28px;
+    height: 10px;
+    background-color: red;
+    display: none;
+    position: absolute;
+    top: 36%;
+    left: 11%;
+}
+
+.menu1 {
+    position: absolute;
+    top: 57%;
+    left: 26.5%;
+    transform: translate(-50%, -50%);
+    z-index: 1;
+    color: white;
+    font-size: 17px;
+    font-family: Helvetica, serif;
+    font-weight: bold;
+    text-align: center;
+    background: transparent;
+    border: 0px;
+    border-right-color: black;
+    padding: 2px 5px;
+}
+
+.menu2 {
+    position: absolute;
+    top: 56.5%;
+    left: 33.5%;
+    transform: translate(-50%, -50%);
+    z-index: 1;
+    color: white;
+    font-size: 17px;
+    font-family: Helvetica, serif;
+    font-weight: bold;
+    text-align: center;
+    background: transparent;
+    border: 0px;
+    border-left-color: black;
+    padding: 2px 5px;
+}
+
+.menu3 {
+    position: absolute;
+    top: 56.2%;
+    left: 41%;
+    transform: translate(-50%, -50%);
+    z-index: 1;
+    color: white;
+    font-size: 17px;
+    font-family: Helvetica, serif;
+    font-weight: bold;
+    text-align: center;
+    background: transparent;
+    border-left-color: black;
+    border: 0px;
+
+    padding: 2px 5px;
+}
+
+.menu4 {
+    position: absolute;
+    top: 56.2%;
+    left: 48.5%;
+    transform: translate(-50%, -50%);
+    z-index: 1;
+    color: white;
+    font-size: 17px;
+    font-family: Helvetica, serif;
+    font-weight: bold;
+    text-align: center;
+    background: transparent;
+    border-left-color: black;
+    border: 0px;
+
+    padding: 2px 5px;
+}
+
+.rssi_icon {
+    width: 20px;
+    height: 18px;
+    background-color: transparent;
+    display: none;
+    position: absolute;
+    top: 19.5%;
+    left: 22.5%;
+}
+
+.secure_icon {
+    width: 18px;
+    height: 17px;
+    background-color: transparent;
+    display: none;
+    position: absolute;
+    top: 19.5%;
+    left: 25.5%;
+}
+
+.scan_icon {
+    width: 15px;
+    height: 15px;
+    background-color: transparent;
+    display: none;
+    position: absolute;
+    top: 20%;
+    left: 28%;
+}
+
+.wifi_icon {
+    width: 14px;
+    height: 13px;
+    background-color: transparent;
+    display: none;
+    position: absolute;
+    top: 20%;
+    left: 38%;
+}
+
+.ip_icon {
+    width: 14px;
+    height: 15px;
+    background-color: transparent;
+    display: none;
+    position: absolute;
+    top: 20%;
+    left: 40%;
+}
+
+.gps_icon {
+    width: 14px;
+    height: 15px;
+    background-color: transparent;
+    display: none;
+    position: absolute;
+    top: 20%;
+    left: 42%;
+
+}
+
+.page_div {
+    position: absolute;
+    top: 120%;
+}
+
+@keyframes flash {
+    0%, 100% {
+        background-color: inherit;
+    }
+    50% {
+        background-color: red;
+    }
+}
+
+.flash-bg-danger {
+    animation: flash 1s infinite;
+}

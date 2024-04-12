@@ -8,10 +8,13 @@ class WebServer {
     constructor(config) {
         this.port = config.web.port || 4000;
         this.bindAddress = config.web.bindAddress || "0.0.0.0";
+        this.debug = config.web.debug || false;
 
         this.app = express();
         this.server = http.createServer(this.app);
         this.io = new Server(this.server);
+
+        this.connectedUsers = 0;
 
         this.app.set('views', path.join(__dirname, '../views'));
         this.app.set('view engine', 'ejs');
@@ -22,8 +25,16 @@ class WebServer {
         this.app.get('/', (req, res) => {
             const groups = config.groups;
 
-            res.render("index", { groups });
+            res.render("index", { groups, connectedUsers: this.connectedUsers });
         });
+
+        if (this.debug) {
+            this.app.get('/apxRadio', (req, res) => {
+                const groups = config.groups;
+
+                res.render("apxRadio", {groups});
+            });
+        }
 
         this.app.get('/api/recordings', (req, res) => {
             const { system, talkgroup, date } = req.query; // Filters from query params
@@ -56,14 +67,30 @@ class WebServer {
         });
 
         this.io.on('connection', (socket) => {
+            this.connectedUsers++;
+            this.emitUserCount();
+
+            if (this.debug) {
+                console.log(`A user connected. Total connected users: ${this.connectedUsers}`);
+            }
+
             socket.on('disconnect', () => {
-                /* stub */
+                this.connectedUsers--;
+                this.emitUserCount();
+
+                if (this.debug) {
+                    console.log(`A user disconnected. Total connected users: ${this.connectedUsers}`);
+                }
             });
         });
 
         this.server.listen(this.port, () => {
             console.log(`Web server listening at http://localhost:${this.port}`);
         });
+    }
+
+    emitUserCount() {
+        this.io.emit('userCount', this.connectedUsers);
     }
 }
 
