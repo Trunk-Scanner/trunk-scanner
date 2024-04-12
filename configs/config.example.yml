@@ -3,6 +3,7 @@ web: # Web Server for the UI
   bindAddress: 0.0.0.0
 
 sdrtrunk: # SDRTrunk Server. May work with other software's out there, untested
+  enabled: true
   port: 3000
   bindAddress: 0.0.0.0
 

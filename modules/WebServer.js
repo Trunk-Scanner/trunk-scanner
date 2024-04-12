@@ -28,13 +28,11 @@ class WebServer {
             res.render("index", { groups, connectedUsers: this.connectedUsers });
         });
 
-        if (this.debug) {
-            this.app.get('/apxRadio', (req, res) => {
-                const groups = config.groups;
+        this.app.get('/apxRadio', (req, res) => {
+            const groups = config.groups;
 
-                res.render("apxRadio", {groups});
-            });
-        }
+            res.render("apxRadio", {groups});
+        });
 
         this.app.get('/api/recordings', (req, res) => {
             const { system, talkgroup, date } = req.query; // Filters from query params

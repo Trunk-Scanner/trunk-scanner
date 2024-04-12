@@ -28,7 +28,7 @@ class SdrTrunkApi {
             this.discordWebhook = new DiscordWebhook(config);
         }
 
-        if (config.discord.bot) {
+        if (config.discord.bot && config.discord.bot.enabled) {
             this.discordBot = new DiscordBot(config.discord.bot.token, config.discord.bot.channel, config.discord.bot.systemUrl, config.discord.bot.whitelist);
         }
 
