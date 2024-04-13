@@ -1,7 +1,7 @@
 import { Codeplug } from '/public/js/models/Codeplug.js';
 import { Enum } from '/public/js/models/Enum.js';
 
-const FIRMWARE_VERSION = "R01.05.00";
+const FIRMWARE_VERSION = "R01.06.00";
 
 const DEFAULT_MODEL = "APX7500";
 const DEFAULT_SERIAL = "123ABC1234";
@@ -51,8 +51,17 @@ export class ApxRadioApp {
         const updateInfoAndPlay = (data) => {
             const srcId = data.call.source;
             this.isplaying = true;
-            this.stopPrimaryMissingInterval();
-            document.getElementById("line3").innerText = `ID: ${srcId}`;
+            let currentZone = this.codeplug.Zones[this.currentZoneIndex];
+            let currentChannel = currentZone.Channels[this.currentChannelIndex];
+
+            this.stopPrimaryMissingInterval().then(r => {});
+
+            const isltr = currentChannel.Mode == 3;
+            const isanalog = currentChannel.Mode == 2;
+
+            if (!isltr && !isanalog) {
+                document.getElementById("line3").innerText = `ID: ${srcId}`;
+            }
 
             if (this.isscanenabled) {
                 document.getElementById("line2").innerText = this.getChannelNameFromTgid(data.call.talkgroup);
@@ -86,8 +95,13 @@ export class ApxRadioApp {
                     return;
                 }
 
-                if (data.call.talkgroup !== currentChannel.Tgid && !this.isscanenabled){
-                    console.log(`Talkgroup ${data.call.talkgroup} is not the current channel. Skipping...`);
+                console.log("Current Channel:", currentChannel.Alias, "Current TGID:", currentChannel.Tgid, "Current Freq:", currentChannel.Frequency, "Current Mode:", currentChannel.Mode, "Current Zone:", currentZone.Name, "Current Zone Index:", this.currentZoneIndex, "Current Channel Index:", this.currentChannelIndex);
+
+                const isconventional = (currentChannel.Mode == 1 || currentChannel.Mode == 2);
+                const istrunking = (currentChannel.Mode == 0 || currentChannel.Mode == 4);
+
+                if ((istrunking && data.call.talkgroup !== currentChannel.Tgid) || (isconventional && currentChannel.Frequency.toString() !== data.call.frequency) && !this.isscanenabled) {
+                    console.log(`Talkgroup ${data.call.talkgroup} is not the current channel or frequncy ${parseInt(data.call.frequency)} is not the current Frequency Skipping...`);
                     return;
                 }
 
