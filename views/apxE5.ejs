@@ -18,7 +18,7 @@
     const numOfRadios = "<%=numOfRadios%>"
     import { ApxRadioApp } from '/public/js/ApxRadioApp.js';
 
-    let apxRadioApp = new ApxRadioApp();
+    let apxRadioApp = new ApxRadioApp("APX8500");
     let powerState = false;
 
     document.getElementById('loadCodeplugBtn').addEventListener('click', async () => {

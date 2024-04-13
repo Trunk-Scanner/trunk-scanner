@@ -16,7 +16,8 @@
 <script type="module" src="/public/js/ApxRadioApp.js"></script>
 <script type="module">
     import { ApxRadioApp } from '/public/js/ApxRadioApp.js';
-    let apxRadioApp = new ApxRadioApp();
+
+    let apxRadioApp = new ApxRadioApp("APX4500");
     let powerState = false;
 
     document.getElementById('loadCodeplugBtn').addEventListener('click', async () => {

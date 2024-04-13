@@ -16,8 +16,10 @@ const ControlHeadTypes = new Enum({
 const socket = io();
 
 export class ApxRadioApp {
-    constructor() {
+    constructor(actualModel) {
         this.codeplug = new Codeplug();
+        this.actualRadioModel = actualModel;
+
         this.isstarted = false;
         this.iserrorstate = false;
         this.iskilled = false;
@@ -544,6 +546,14 @@ export class ApxRadioApp {
         await sleep(500);
         document.getElementById("line1").innerText = '';
         await sleep(500);
+
+        if (this.codeplug.ModelNumber !== this.actualRadioModel) {
+            document.getElementById("line1").innerText = "ERR 01/02";
+            await sleep(1000);
+            clearDisplayLines();
+            await sleep(500);
+        }
+
         document.getElementById("line1").innerText = currentZone.Name;
         document.getElementById("line2").innerText = currentChannel.Alias;
         document.getElementById("line3").innerText = '';
