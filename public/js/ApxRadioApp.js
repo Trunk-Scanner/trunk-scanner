@@ -179,7 +179,11 @@ export class ApxRadioApp {
                 responsiveVoice.speak("Scan on", `US English Male`, {rate: .8});
             }
 
-            changeIconImage("/public/images/apx_color_icons/black/scan.webp", "scan_icon");
+            if (this.codeplug.ControlHead === 1) {
+                changeIconImage("/public/images/apx_color_icons/scan.png", "scan_icon");
+            } else if (this.codeplug.ControlHead === 2) {
+                changeIconImage("/public/images/apx_color_icons/black/scan.webp", "scan_icon");
+            }
             await this.restartPrimaryMissingInterval(1500);
             document.getElementById("line3").innerText = "Scan on";
             setTimeout(() => {
@@ -581,8 +585,11 @@ export class ApxRadioApp {
         } else {
             this.disablePrimaryMessage = true;
         }
-
-        changeIconImage("/public/images/apx_color_icons/rssi/black/rssi_4.webp", "rssi_icon");
+        if (this.codeplug.ControlHead === 1) {
+            changeIconImage("/public/images/apx_color_icons/rssi/rssi_4.png", "rssi_icon");
+        } else if (this.codeplug.ControlHead === 2) {
+            changeIconImage("/public/images/apx_color_icons/rssi/black/rssi_4.webp", "rssi_icon");
+        }
 
         return true;
     }
@@ -617,9 +624,9 @@ export class ApxRadioApp {
         let message1;
 
         if (issecondary) {
-            message1 = "Primary";
-        } else {
             message1 = "Secondary";
+        } else {
+            message1 = "Primary";
         }
 
         if (!this.primaryMissingInterval){
