@@ -100,7 +100,7 @@ export class ApxRadioApp {
                 const isconventional = (currentChannel.Mode == 1 || currentChannel.Mode == 2);
                 const istrunking = (currentChannel.Mode == 0 || currentChannel.Mode == 4);
 
-                if ((istrunking && data.call.talkgroup !== currentChannel.Tgid) || (isconventional && currentChannel.Frequency.toString() !== data.call.frequency) && !this.isscanenabled) {
+                if (!this.isscanenabled && ((istrunking && data.call.talkgroup !== currentChannel.Tgid) || (isconventional && currentChannel.Frequency.toString() !== data.call.frequency))) {
                     console.log(`Talkgroup ${data.call.talkgroup} is not the current channel or frequncy ${parseInt(data.call.frequency)} is not the current Frequency Skipping...`);
                     return;
                 }
