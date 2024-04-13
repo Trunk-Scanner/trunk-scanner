@@ -1,7 +1,16 @@
 import { Codeplug } from '/public/js/models/Codeplug.js';
+import { Enum } from '/public/js/models/Enum.js';
 
 const DEFAULT_MODEL = "APX7500";
 const DEFAULT_SERIAL = "123ABC1234";
+
+const ControlHeadTypes = new Enum({
+    None: 0,
+    O2: 1,
+    E5: 2,
+    O9: 3
+});
+
 const socket = io();
 
 export class ApxRadioApp {
@@ -137,6 +146,11 @@ export class ApxRadioApp {
         if (this.isscanenabled){
             this.buttonBeep();
             this.isscanenabled = false;
+
+            if (this.codeplug.TtsEnabled) {
+                responsiveVoice.speak("Scan off", `US English Male`, {rate: .8});
+            }
+
             document.getElementById("scan_icon").style.display = 'none';
             document.getElementById("line3").innerText = "Scan off";
             setTimeout(() => {
@@ -145,6 +159,11 @@ export class ApxRadioApp {
         } else {
             this.buttonBeep();
             this.isscanenabled = true;
+
+            if (this.codeplug.TtsEnabled) {
+                responsiveVoice.speak("Scan on", `US English Male`, {rate: .8});
+            }
+
             changeIconImage("/public/images/apx_color_icons/black/scan.webp", "scan_icon");
             document.getElementById("line3").innerText = "Scan on";
             setTimeout(() => {
@@ -164,6 +183,9 @@ export class ApxRadioApp {
             console.debug('Button pressed 5 times');
             this.isstarted = false;
             await this.stop();
+
+            this.serviceModeBeep();
+
             document.getElementById("line2").innerText = "Service";
 
             await sleep(2500);
@@ -197,6 +219,11 @@ export class ApxRadioApp {
 
             await sleep(2500);
             clearDisplayLines();
+            document.getElementById("line1").innerText = "CH Type";
+            document.getElementById("line2").innerText = ControlHeadTypes.fromInt(this.codeplug.ControlHead);
+
+            await sleep(2500);
+            clearDisplayLines();
             document.getElementById("line1").innerText = "Serial Number";
             document.getElementById("line2").innerText = this.codeplug.SerialNumber;
 
@@ -220,23 +247,39 @@ export class ApxRadioApp {
     }
 
     async loadCodeplugJson() {
+        console.log("Starting loadCodeplugJson process.");
+
         if (this.isstarted && this.codeplug) {
+            console.log("Stopping current operations.");
             await this.stop();
-            await sleep(500);
+            await this.sleep(500);
             this.programModeBeep();
             document.getElementById("line1").innerText = "Program Mode";
-            await sleep(500);
+            await this.sleep(500);
         }
 
         let fileInput = document.createElement('input');
         fileInput.type = 'file';
         fileInput.accept = '.json';
         fileInput.style.display = 'none';
-        fileInput.onchange = (e) => this.handleFileSelect(e);
+
+        fileInput.onchange = (e) => {
+            if (e.target.files.length === 0) {
+                console.log("File dialog was canceled.");
+                this.onFileDialogCanceled();
+            } else {
+                console.log("File selected:", e.target.files[0].name);
+                this.handleFileSelect(e);
+            }
+        };
+
         document.body.appendChild(fileInput);
+        console.log("Clicking file input.");
         fileInput.click();
     }
-
+    onFileDialogCanceled() {
+        console.log('File dialog canceled.');
+    }
     loadCodeplugFromStorage() {
         const storedCodeplug = localStorage.getItem('codeplug');
         if (storedCodeplug) {
@@ -329,6 +372,12 @@ export class ApxRadioApp {
             result = false;
         }
 
+        if (codeplug.ControlHead === 0 || !codeplug.ControlHead) {
+            console.error('Codeplug validation failed: No control head type defined.');
+            this.iserrorstate = true;
+            result = false;
+        }
+
         return result;
     }
 
@@ -375,6 +424,10 @@ export class ApxRadioApp {
         }
 
         this.updateDisplay(false, true);
+    }
+
+    serviceModeBeep() {
+        playSoundEffect('/public/audio/apx_service_mode.wav');
     }
 
     programModeBeep() {
@@ -435,6 +488,8 @@ export class ApxRadioApp {
             return false;
         }
 
+        const controlHeadType = ControlHeadTypes.fromInt(this.codeplug.ControlHead);
+
         const currentZone = this.codeplug.Zones[this.currentZoneIndex];
         const currentChannel = currentZone.Channels[this.currentChannelIndex];
 
@@ -460,12 +515,11 @@ export class ApxRadioApp {
             responsiveVoice.speak(currentChannel.Alias, `US English Male`, {rate: .8});
         }
 
-
         await sleep(2000);
 
-        if (this.codeplug.ModelNumber === "APX4500") {
+        if (this.codeplug.ControlHead === 1) {
             changeClassSize("rssi_icon", "18px", "20px");
-        } else if (this.codeplug.ModelNumber === "APX8500") {
+        } else if (this.codeplug.ControlHead === 2) {
             changeClassSize("rssi_icon", "20px", "22px");
         } else {
             changeClassSize("rssi_icon", "18px", "20px");
@@ -582,18 +636,18 @@ function changeClassSize(className, newHeight, newWidth) {
 }
 
 function playSoundEffect(url) {
-    const player = document.getElementById('audioPlayer');
+    const player = document.getElementById('soundEffectsPlayer');
     player.src = url;
     player.play();
 }
 
 function pauseSoundEffect() {
-    const player = document.getElementById('audioPlayer');
+    const player = document.getElementById('soundEffectsPlayer');
     player.pause();
 }
 
 function stopSoundEffect() {
-    const player = document.getElementById('audioPlayer');
+    const player = document.getElementById('soundEffectsPlayer');
     player.pause();
     player.currentTime = 0;
 }

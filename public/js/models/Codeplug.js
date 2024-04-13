@@ -2,6 +2,7 @@ export class Codeplug {
     constructor() {
         this.Zones = [];
         this.ScanLists = [];
+        this.ControlHead = 0;
         this.CodeplugVersion = '';
         this.LastProgramSource = 0;
         this.ModelNumber = '';
