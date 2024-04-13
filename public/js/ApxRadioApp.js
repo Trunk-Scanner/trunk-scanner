@@ -12,6 +12,7 @@ export class ApxRadioApp {
         this.iskilled = false;
         this.isplaying = false;
         this.isscanenabled = false;
+        this.initialBoot = false;
 
         this.currentZoneIndex = 0;
         this.currentChannelIndex = 0;
@@ -144,7 +145,7 @@ export class ApxRadioApp {
         } else {
             this.buttonBeep();
             this.isscanenabled = true;
-            changeIconImage("/public/images/apx_color_icons/scan.png", "scan_icon");
+            changeIconImage("/public/images/apx_color_icons/black/scan.webp", "scan_icon");
             document.getElementById("line3").innerText = "Scan on";
             setTimeout(() => {
                 document.getElementById("line3").innerText = '';
@@ -219,7 +220,7 @@ export class ApxRadioApp {
     }
 
     async loadCodeplugJson() {
-        if (this.isstarted) {
+        if (this.isstarted && this.codeplug) {
             await this.stop();
             await sleep(500);
             this.programModeBeep();
@@ -267,16 +268,19 @@ export class ApxRadioApp {
 
                 localStorage.setItem('codeplug', JSON.stringify(data));
 
-                await sleep(1000);
-                clearDisplayLines();
-                startBlinkingLed(150);
-                document.getElementById("line1").innerText = "Updating";
-                document.getElementById("line2").innerText = "Codeplug";
-                await sleep(1500);
-                stopBlinkingLed();
-                clearDisplayLines();
-                await sleep(500);
-                await this.start();
+                if (this.codeplug && this.initialBoot) {
+                    await this.stop();
+                    await sleep(1000);
+                    clearDisplayLines();
+                    startBlinkingLed(150);
+                    document.getElementById("line1").innerText = "Updating";
+                    document.getElementById("line2").innerText = "Codeplug";
+                    await sleep(1500);
+                    stopBlinkingLed();
+                    clearDisplayLines();
+                    await sleep(500);
+                    await this.start();
+                }
             } catch (error) {
                 console.error('Error parsing JSON:', error);
                 alert('Error loading the codeplug.');
@@ -403,6 +407,7 @@ export class ApxRadioApp {
 
     async start() {
         console.log('Starting Main Radio App');
+        this.initialBoot = true;
 
         if (!this.codeplug) {
             console.error('No codeplug loaded.');
@@ -442,6 +447,7 @@ export class ApxRadioApp {
         document.getElementById("line2").innerText = currentChannel.Alias;
         document.getElementById("line3").innerText = '';
 
+        document.getElementById("menu1").style.display = 'block';
         document.getElementById("menu1").innerText = "Scan";
 
         this.isstarted = true;
@@ -457,8 +463,15 @@ export class ApxRadioApp {
 
         await sleep(2000);
 
-        changeClassSize("rssi_icon", "18px", "20px");
-        changeIconImage("/public/images/apx_color_icons/rssi/rssi_4.png", "rssi_icon");
+        if (this.codeplug.ModelNumber === "APX4500") {
+            changeClassSize("rssi_icon", "18px", "20px");
+        } else if (this.codeplug.ModelNumber === "APX8500") {
+            changeClassSize("rssi_icon", "20px", "22px");
+        } else {
+            changeClassSize("rssi_icon", "18px", "20px");
+        }
+
+        changeIconImage("/public/images/apx_color_icons/rssi/black/rssi_4.webp", "rssi_icon");
 
         return true;
     }
@@ -466,8 +479,11 @@ export class ApxRadioApp {
     async stop() {
         console.log('Stopping Main Radio App');
         this.isstarted = false;
+        this.isscanenabled = false;
         document.getElementById("rssi_icon").style.display = 'none';
         document.getElementById("scan_icon").style.display = 'none';
+        document.getElementById("menu1").style.display = 'none';
+
         document.getElementById("menu1").innerText = "";
 
         document.getElementById("line1").innerText = "";
@@ -477,7 +493,6 @@ export class ApxRadioApp {
         stopBlinkingLed();
         this.buttonPressCount = 0;
         return true;
-
     }
 
     isTgidInCurrentScanList(tgid) {

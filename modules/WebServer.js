@@ -28,10 +28,18 @@ class WebServer {
             res.render("index", { groups, connectedUsers: this.connectedUsers });
         });
 
-        this.app.get('/apxRadio', (req, res) => {
+        this.app.get('/apxRadio/:chType?/:numOfRadios?', (req, res) => {
             const groups = config.groups;
+            const chType = req.params.chType;
+            const numOfRadios = req.params.numOfRadios;
 
-            res.render("apxRadio", {groups});
+            if (chType === 'o2') {
+                res.render("apxO2", { groups, numOfRadios });
+            } else if (chType === 'apxE5') {
+                res.render("e5", { groups, numOfRadios });
+            } else {
+                res.render("apxE5", { groups, numOfRadios });
+            }
         });
 
         this.app.get('/api/recordings', (req, res) => {

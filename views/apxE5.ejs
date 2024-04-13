@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>APX Radio</title>
-    <link rel="stylesheet" href="/public/css/o2.css"> <!-- TODO: Load these dynamically based on the radio-->
+    <title>APX E5</title>
+    <link rel="stylesheet" href="/public/css/e5.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.1.2/socket.io.js" crossorigin="anonymous"></script>
 
     <script src="https://code.responsivevoice.org/1.6/responsivevoice.js?key=PekkZld1"></script>
@@ -15,19 +15,21 @@
 
 <script type="module" src="/public/js/ApxRadioApp.js"></script>
 <script type="module">
+    const numOfRadios = "<%=numOfRadios%>"
     import { ApxRadioApp } from '/public/js/ApxRadioApp.js';
+
     let apxRadioApp = new ApxRadioApp();
     let powerState = false;
 
     document.getElementById('loadCodeplugBtn').addEventListener('click', async () => {
         await apxRadioApp.loadCodeplugJson();
     });
-    document.getElementById('radioPowerBtn').addEventListener('click', () => {
+    document.getElementById('radioPowerBtn').addEventListener('click', async () => {
         if (powerState) {
-            apxRadioApp.stop();
+            await apxRadioApp.stop();
             powerState = false;
         } else {
-            apxRadioApp.start();
+            await apxRadioApp.start();
             if (!apxRadioApp.isstarted) {
                 console.log('Radio app failed to start');
             } else {
@@ -40,14 +42,14 @@
 
 <div style="text-align: center;">
     <div class="container">
-        <img class="image" src="/public/images/o2_green.png" alt="radio">
+        <img class="image" src="/public/images/e5.png" alt="radio">
 
-        <img id="rssi_icon" class="rssi_icon" src="" alt="rssi">
-        <img id="secure_icon" class="secure_icon" src="" alt="secure">
-        <img id="scan_icon" class="scan_icon" src="" alt="scan">
-        <img id="wifi_icon" class="wifi_icon" src="" alt="wifi">
-        <img id="ip_icon" class="ip_icon" src="" alt="ip">
-        <img id="gps_icon" class="gps_icon" src="" alt="ip">
+        <img id="rssi_icon" class="rssi_icon" src="/public/images/apx_color_icons/rssi/black/rssi_4.webp" alt="rssi">
+        <img id="secure_icon" class="secure_icon" src="/public/images/apx_color_icons/secure.png" alt="secure">
+        <img id="scan_icon" class="scan_icon" src="/public/images/apx_color_icons/black/scan.webp" alt="scan">
+        <img id="wifi_icon" class="wifi_icon" src="/public/images/apx_color_icons/wifi.png" alt="wifi">
+        <img id="ip_icon" class="ip_icon" src="/public/images/apx_color_icons/ip.png" alt="ip">
+        <img id="gps_icon" class="gps_icon" src="/public/images/apx_color_icons/gps.png" alt="ip">
 
         <div id="line1" class="line1"></div>
         <div id="line2" class="line2"></div>
@@ -58,26 +60,16 @@
         <div id="menu3" class="menu3"></div>
         <div id="menu4" class="menu4"></div>
 
-        <button id="channelButton" class="channelButton">CHAN</button>
+        <button id="channelButton" class="channelButton">CH</button>
         <button id="zoneUp" class="zoneUp">UP</button>
         <button id="zoneDown" class="zoneDown">DN</button>
 
         <button id="softButton1" class="softButton1">DN</button>
 
         <button id="homeButton" class="homeButton">DN</button>
-
-        <!--        <div id="page_div" class="page_div">
-                    <form id="form" action="">
-                        <label for="input">RID to page</label><input id="input" autocomplete="off" />
-                        <button>Send</button>
-                    </form>
-                </div>-->
-
-
         <button id="radioPowerBtn" class="pwr_button">PW</button>
-<!--        <button id="emerg_button" class="emerg_button" onclick="send_emerg()">EM</button>-->
+        <!--<button id="emerg_button" class="emerg_button" onclick="send_emerg()">EM</button>-->
         <div id="ptt_indicator" class="ptt_indicator"></div>
-<!--        <button id="PTT" class="PTT" onmousedown="request_voice_channel(this)" onmouseup="release_voice_channel(this)" >PTT</button>-->
     </div>
 </div>
 
