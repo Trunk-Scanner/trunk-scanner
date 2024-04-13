@@ -26,6 +26,8 @@ export class ApxRadioApp {
         this.initialBoot = false;
         this.isprimarypresent = false;
 
+        this.disablePrimaryMessage = false;
+
         this.currentZoneIndex = 0;
         this.currentChannelIndex = 0;
 
@@ -566,6 +568,8 @@ export class ApxRadioApp {
         }
 
         if ((this.codeplug.RadioMode === 1 || this.codeplug.RadioMode === 0) && !this.isprimarypresent) {
+            this.disablePrimaryMessage = false;
+
             this.buttonBonk();
             await sleep(200);
             this.buttonBonk();
@@ -574,6 +578,8 @@ export class ApxRadioApp {
             this.buttonBonk();
             await sleep(500);
             this.buttonBonk();
+        } else {
+            this.disablePrimaryMessage = true;
         }
 
         changeIconImage("/public/images/apx_color_icons/rssi/black/rssi_4.webp", "rssi_icon");
@@ -603,6 +609,11 @@ export class ApxRadioApp {
     }
 
     async startPrimaryMissingInterval(issecondary = false) {
+        if (this.disablePrimaryMessage) {
+            console.debug("Primary missing interval disabled.");
+            return;
+        }
+
         let message1;
 
         if (issecondary) {
@@ -629,6 +640,7 @@ export class ApxRadioApp {
     }
 
     async restartPrimaryMissingInterval(delay = 1000) {
+
         await this.stopPrimaryMissingInterval();
 
         setTimeout(async () => {
@@ -637,6 +649,11 @@ export class ApxRadioApp {
     }
 
     async stopPrimaryMissingInterval() {
+        if (this.disablePrimaryMessage) {
+            console.debug("Primary missing interval disabled.");
+            return;
+        }
+
         await clearInterval(this.primaryMissingInterval);
         this.primaryMissingInterval = null;
     }
