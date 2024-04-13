@@ -2,6 +2,7 @@ export class Codeplug {
     constructor() {
         this.Zones = [];
         this.ScanLists = [];
+        this.RadioMode = 0;
         this.ControlHead = 0;
         this.CodeplugVersion = '';
         this.LastProgramSource = 0;
@@ -11,6 +12,7 @@ export class Codeplug {
         this.RadioKilled = false;
         this.TrunkingInhibited = false;
         this.TtsEnabled = false;
+        this.SecondaryRadioTx = false;
     }
 
     load(data) {

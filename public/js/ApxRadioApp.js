@@ -1,6 +1,8 @@
 import { Codeplug } from '/public/js/models/Codeplug.js';
 import { Enum } from '/public/js/models/Enum.js';
 
+const FIRMWARE_VERSION = "R01.05.00";
+
 const DEFAULT_MODEL = "APX7500";
 const DEFAULT_SERIAL = "123ABC1234";
 
@@ -22,11 +24,13 @@ export class ApxRadioApp {
         this.isplaying = false;
         this.isscanenabled = false;
         this.initialBoot = false;
+        this.isprimarypresent = false;
 
         this.currentZoneIndex = 0;
         this.currentChannelIndex = 0;
 
         this.buttonPressCount = 0;
+        this.primaryMissingInterval = null;
 
         const audioPlayer = document.getElementById('audioPlayer');
 
@@ -36,12 +40,14 @@ export class ApxRadioApp {
         document.getElementById('homeButton').addEventListener('click', () => this.homeButton_Click());
         document.getElementById('softButton1').addEventListener('click', () => this.softButton1_Click());
 
-        this.loadCodeplugFromStorage();
+        this.loadCodeplugFromStorage().then(r => {
+            console.log('Codeplug loaded from storage.');
+        });
 
         const updateInfoAndPlay = (data) => {
             const srcId = data.call.source;
             this.isplaying = true;
-
+            this.stopPrimaryMissingInterval();
             document.getElementById("line3").innerText = `ID: ${srcId}`;
 
             if (this.isscanenabled) {
@@ -52,7 +58,12 @@ export class ApxRadioApp {
 
             audioPlayer.src = data.audio;
             audioPlayer.load();
-            audioPlayer.play().catch(e => console.error('Error playing audio:', e));
+            audioPlayer.play().catch(async e => {
+                await this.stop();
+                startBlinkingLed(150);
+                document.getElementById("line1").innerText = "FL 01/81";
+                console.error('Error playing audio:', e)
+            });
         };
 
         socket.on('new_call', (data) => {
@@ -92,9 +103,10 @@ export class ApxRadioApp {
             this.isplaying = false;
             let currentZone = this.codeplug.Zones[this.currentZoneIndex];
             let currentChannel = currentZone.Channels[this.currentChannelIndex];
-            setTimeout(() => {
+            setTimeout(async () => {
                 if (!this.isplaying) {
                     document.getElementById("line3").innerText = '';
+                    await this.startPrimaryMissingInterval(this.codeplug.RadioMode === 2);
                 }
                 if (this.isscanenabled) {
                     document.getElementById("line2").innerText = currentChannel.Alias;
@@ -152,6 +164,7 @@ export class ApxRadioApp {
             }
 
             document.getElementById("scan_icon").style.display = 'none';
+            await this.restartPrimaryMissingInterval(1500);
             document.getElementById("line3").innerText = "Scan off";
             setTimeout(() => {
                 document.getElementById("line3").innerText = '';
@@ -165,6 +178,7 @@ export class ApxRadioApp {
             }
 
             changeIconImage("/public/images/apx_color_icons/black/scan.webp", "scan_icon");
+            await this.restartPrimaryMissingInterval(1500);
             document.getElementById("line3").innerText = "Scan on";
             setTimeout(() => {
                 document.getElementById("line3").innerText = '';
@@ -252,10 +266,10 @@ export class ApxRadioApp {
         if (this.isstarted && this.codeplug) {
             console.log("Stopping current operations.");
             await this.stop();
-            await this.sleep(500);
+            await sleep(500);
             this.programModeBeep();
             document.getElementById("line1").innerText = "Program Mode";
-            await this.sleep(500);
+            await sleep(500);
         }
 
         let fileInput = document.createElement('input');
@@ -280,7 +294,7 @@ export class ApxRadioApp {
     onFileDialogCanceled() {
         console.log('File dialog canceled.');
     }
-    loadCodeplugFromStorage() {
+    async loadCodeplugFromStorage() {
         const storedCodeplug = localStorage.getItem('codeplug');
         if (storedCodeplug) {
             try {
@@ -288,6 +302,9 @@ export class ApxRadioApp {
                 this.codeplug.load(data);
                 console.log('Codeplug loaded from storage:', this.codeplug);
             } catch (error) {
+                await this.stop();
+                startBlinkingLed(150);
+                document.getElementById("line1").innerText = "FL 01/81";
                 console.error('Error parsing stored codeplug:', error);
             }
         }
@@ -325,8 +342,13 @@ export class ApxRadioApp {
                     await this.start();
                 }
             } catch (error) {
+                localStorage.setItem('codeplug', null);
+                this.codeplug = null;
+
+                await this.stop();
+                startBlinkingLed(150);
+                document.getElementById("line1").innerText = "FL 01/81";
                 console.error('Error parsing JSON:', error);
-                alert('Error loading the codeplug.');
             }
         };
 
@@ -374,6 +396,24 @@ export class ApxRadioApp {
 
         if (codeplug.ControlHead === 0 || !codeplug.ControlHead) {
             console.error('Codeplug validation failed: No control head type defined.');
+            this.iserrorstate = true;
+            result = false;
+        }
+
+        if (codeplug.RadioMode > 3) {
+            console.error('Codeplug validation failed: Invalid radio mode.', codeplug.RadioMode);
+            this.iserrorstate = true;
+            result = false;
+        }
+
+        if (codeplug.SecondaryRadioTx == null || typeof codeplug.SecondaryRadioTx !== 'boolean') {
+            console.error('Codeplug validation failed: Invalid secondary radio TX value.');
+            this.iserrorstate = true;
+            result = false;
+        }
+
+        if (codeplug.CodeplugVersion !== FIRMWARE_VERSION) {
+            console.error('Codeplug validation failed: Invalid codeplug version. Expected:', FIRMWARE_VERSION, '!=', codeplug.CodeplugVersion);
             this.iserrorstate = true;
             result = false;
         }
@@ -525,6 +565,17 @@ export class ApxRadioApp {
             changeClassSize("rssi_icon", "18px", "20px");
         }
 
+        if ((this.codeplug.RadioMode === 1 || this.codeplug.RadioMode === 0) && !this.isprimarypresent) {
+            this.buttonBonk();
+            await sleep(200);
+            this.buttonBonk();
+            await this.startPrimaryMissingInterval(this.codeplug.RadioMode === 2);
+            await sleep(200);
+            this.buttonBonk();
+            await sleep(500);
+            this.buttonBonk();
+        }
+
         changeIconImage("/public/images/apx_color_icons/rssi/black/rssi_4.webp", "rssi_icon");
 
         return true;
@@ -544,9 +595,50 @@ export class ApxRadioApp {
         document.getElementById("line2").innerText = "";
         document.getElementById("line3").innerText = "";
 
+        clearInterval(this.primaryMissingInterval);
+
         stopBlinkingLed();
         this.buttonPressCount = 0;
         return true;
+    }
+
+    async startPrimaryMissingInterval(issecondary = false) {
+        let message1;
+
+        if (issecondary) {
+            message1 = "Primary";
+        } else {
+            message1 = "Secondary";
+        }
+
+        if (!this.primaryMissingInterval){
+            console.warn("no primary missing interval set");
+        }
+
+        if (!this.isstarted) {
+            console.log("Radio not started. Skipping primary missing interval.");
+            return;
+        }
+
+        this.primaryMissingInterval = await setInterval(() => {
+            document.getElementById("line3").innerText = message1;
+            setTimeout(() => {
+                document.getElementById("line3").innerText = "missing";
+            }, 1000);
+        }, 2000);
+    }
+
+    async restartPrimaryMissingInterval(delay = 1000) {
+        await this.stopPrimaryMissingInterval();
+
+        setTimeout(async () => {
+            await this.startPrimaryMissingInterval(this.codeplug.RadioMode === 2);
+        }, delay);
+    }
+
+    async stopPrimaryMissingInterval() {
+        await clearInterval(this.primaryMissingInterval);
+        this.primaryMissingInterval = null;
     }
 
     isTgidInCurrentScanList(tgid) {
