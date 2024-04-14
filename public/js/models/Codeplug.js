@@ -13,6 +13,8 @@ export class Codeplug {
         this.TrunkingInhibited = false;
         this.TtsEnabled = false;
         this.SecondaryRadioTx = false;
+        this.EnforceSystemId = false;
+        this.HomeSystemId = '';
         this.PasswordProtected = false;
     }
 

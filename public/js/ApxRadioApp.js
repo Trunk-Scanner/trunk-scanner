@@ -85,6 +85,11 @@ export class ApxRadioApp {
         socket.on('new_call', (data) => {
             if (!this.isstarted) return;
 
+            if (this.codeplug.EnforceSystemId && (data.call.system !== this.codeplug.HomeSystemId)) {
+                console.log(`System ID ${data.call.system} does not match enforced System ID ${this.codeplug.HomeSystemId}. Skipping...`);
+                return;
+            }
+
             if (data.type === "WAV_STREAM" && player) {
                 // TODO: Add later
                 console.log("New WAV_STREAM call received.");
