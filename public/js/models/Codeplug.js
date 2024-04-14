@@ -13,6 +13,38 @@ export class Codeplug {
         this.TrunkingInhibited = false;
         this.TtsEnabled = false;
         this.SecondaryRadioTx = false;
+        this.PasswordProtected = false;
+    }
+
+    async decrypt(encryptedData, password) {
+        const enc = new TextEncoder();
+        const dec = new TextDecoder();
+
+        const encryptedBytes = Uint8Array.from(atob(encryptedData), c => c.charCodeAt(0));
+
+        const iv = encryptedBytes.slice(0, 16);
+        const encryptedContent = encryptedBytes.slice(16);
+
+        const keyMaterial = await window.crypto.subtle.importKey(
+            "raw",
+            enc.encode(password.padEnd(32, '\0')),
+            { name: "AES-CBC" },
+            false,
+            ["decrypt"]
+        );
+
+        try {
+            const decrypted = await window.crypto.subtle.decrypt(
+                { name: "AES-CBC", iv },
+                keyMaterial,
+                encryptedContent
+            );
+            const decryptedText = dec.decode(new Uint8Array(decrypted));
+            return JSON.parse(decryptedText);
+        } catch (error) {
+            console.error('Decryption failed:', error);
+            throw new Error("Failed to decrypt.");
+        }
     }
 
     load(data) {

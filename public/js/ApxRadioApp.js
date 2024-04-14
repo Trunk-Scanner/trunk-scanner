@@ -1,7 +1,7 @@
 import {Codeplug} from '/public/js/models/Codeplug.js';
 import {Enum} from '/public/js/models/Enum.js';
 
-const FIRMWARE_VERSION = "R01.06.00";
+const FIRMWARE_VERSION = "R01.12.00";
 
 const DEFAULT_MODEL = "APX7500";
 const DEFAULT_SERIAL = "123ABC1234";
@@ -239,7 +239,12 @@ export class ApxRadioApp {
 
             await sleep(2500);
             clearDisplayLines();
-            document.getElementById("line1").innerText = "Version";
+            document.getElementById("line1").innerText = "Host Version";
+            document.getElementById("line2").innerText = FIRMWARE_VERSION;
+
+            await sleep(2500);
+            clearDisplayLines();
+            document.getElementById("line1").innerText = "CPG Version";
             document.getElementById("line2").innerText = this.codeplug.CodeplugVersion;
 
             await sleep(2500);
@@ -296,8 +301,6 @@ export class ApxRadioApp {
     }
 
     async loadCodeplugJson() {
-        console.log("Starting loadCodeplugJson process.");
-
         if (this.isstarted && this.codeplug) {
             console.log("Stopping current operations.");
             await this.stop();
@@ -312,20 +315,57 @@ export class ApxRadioApp {
         fileInput.accept = '.json';
         fileInput.style.display = 'none';
 
-        fileInput.onchange = (e) => {
+        fileInput.onchange = async (e) => {
             if (e.target.files.length === 0) {
                 console.log("File dialog was canceled.");
-                this.onFileDialogCanceled();
             } else {
-                console.log("File selected:", e.target.files[0].name);
-                this.handleFileSelect(e);
+                const file = e.target.files[0];
+                const reader = new FileReader();
+                reader.onload = async (e) => {
+                    const content = e.target.result;
+                    if (!isJsonValid(content)) {
+                        let password;
+                        if (localStorage.getItem("cpg_password")){
+                            password = localStorage.getItem("cpg_password");
+                        } else {
+                            password = prompt("This codeplug is password protected. Please enter the password:");
+                            localStorage.setItem("cpg_password", password);
+                        }
+
+                        if (password) {
+                            try {
+                                const decryptedContent = await this.codeplug.decrypt(content, password);
+                                this.codeplug.load(decryptedContent);
+                                console.log("CPG: ", this.codeplug);
+                                await this.handleLoadCodeplug();
+
+                                console.log('Encrypted codeplug loaded and decrypted successfully.');
+                            } catch (error) {
+
+                                localStorage.setItem('codeplug', null);
+                                this.codeplug = null;
+
+                                await this.stop();
+                                startBlinkingLed(150);
+                                document.getElementById("line1").innerText = "FL 01/81";
+
+                                console.error('Failed to decrypt codeplug:', error);
+                            }
+                        } else {
+                            console.log("No password provided.");
+                        }
+                    } else {
+                        this.codeplug.load(JSON.parse(content));
+                        await this.handleLoadCodeplug();
+                        console.log('Codeplug loaded successfully.');
+                    }
+                };
+                reader.readAsText(file);
             }
         };
-
-        document.body.appendChild(fileInput);
-        console.log("Clicking file input.");
         fileInput.click();
     }
+
     onFileDialogCanceled() {
         console.log('File dialog canceled.');
     }
@@ -345,49 +385,25 @@ export class ApxRadioApp {
         }
     }
 
-    handleFileSelect(event) {
-        const file = event.target.files[0];
-        if (!file) {
-            console.error('No file selected.');
-            return;
+    async handleLoadCodeplug() {
+        clearDisplayLines();
+        await sleep(1000);
+
+        localStorage.setItem('codeplug', JSON.stringify(this.codeplug));
+
+        if (this.codeplug && this.initialBoot) {
+            await this.stop();
+            await sleep(1000);
+            clearDisplayLines();
+            startBlinkingLed(150);
+            document.getElementById("line1").innerText = "Updating";
+            document.getElementById("line2").innerText = "Codeplug";
+            await sleep(1500);
+            stopBlinkingLed();
+            clearDisplayLines();
+            await sleep(500);
+            await this.start();
         }
-
-        const reader = new FileReader();
-        reader.onload = async (e) => {
-            try {
-                clearDisplayLines();
-                await sleep(1000);
-                const data = JSON.parse(e.target.result);
-                this.codeplug.load(data);
-                console.log('Codeplug loaded:', this.codeplug);
-
-                localStorage.setItem('codeplug', JSON.stringify(data));
-
-                if (this.codeplug && this.initialBoot) {
-                    await this.stop();
-                    await sleep(1000);
-                    clearDisplayLines();
-                    startBlinkingLed(150);
-                    document.getElementById("line1").innerText = "Updating";
-                    document.getElementById("line2").innerText = "Codeplug";
-                    await sleep(1500);
-                    stopBlinkingLed();
-                    clearDisplayLines();
-                    await sleep(500);
-                    await this.start();
-                }
-            } catch (error) {
-                localStorage.setItem('codeplug', null);
-                this.codeplug = null;
-
-                await this.stop();
-                startBlinkingLed(150);
-                document.getElementById("line1").innerText = "FL 01/81";
-                console.error('Error parsing JSON:', error);
-            }
-        };
-
-        reader.readAsText(file);
     }
 
     isRadioKilled(codeplug) {
@@ -811,4 +827,13 @@ function stopSoundEffect() {
     const player = document.getElementById('soundEffectsPlayer');
     player.pause();
     player.currentTime = 0;
+}
+
+function isJsonValid(jsonString) {
+    try {
+        JSON.parse(jsonString);
+        return true;
+    } catch (e) {
+        return false;
+    }
 }
