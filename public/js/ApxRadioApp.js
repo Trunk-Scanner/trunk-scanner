@@ -1,5 +1,5 @@
-import { Codeplug } from '/public/js/models/Codeplug.js';
-import { Enum } from '/public/js/models/Enum.js';
+import {Codeplug} from '/public/js/models/Codeplug.js';
+import {Enum} from '/public/js/models/Enum.js';
 
 const FIRMWARE_VERSION = "R01.06.00";
 
@@ -58,13 +58,16 @@ export class ApxRadioApp {
 
             const isltr = currentChannel.Mode == 3;
             const isanalog = currentChannel.Mode == 2;
+            const isconventionalp25 = currentChannel.Mode == 1;
 
             if (!isltr && !isanalog) {
                 document.getElementById("line3").innerText = `ID: ${srcId}`;
             }
 
-            if (this.isscanenabled) {
+            if (this.isscanenabled && !isconventionalp25) {
                 document.getElementById("line2").innerText = this.getChannelNameFromTgid(data.call.talkgroup);
+            } else if (this.isscanenabled && isconventionalp25) {
+                document.getElementById("line2").innerText = this.getChannelNameFromFrequency(data.call.frequency);
             }
 
             console.log(`Playing audio: TGID: ${data.call.talkgroup}, Frequency: ${data.call.frequency}, Volume: ${audioPlayer.volume}`);
@@ -95,7 +98,7 @@ export class ApxRadioApp {
                     return;
                 }
 
-                console.log("Current Channel:", currentChannel.Alias, "Current TGID:", currentChannel.Tgid, "Current Freq:", currentChannel.Frequency, "Current Mode:", currentChannel.Mode, "Current Zone:", currentZone.Name, "Current Zone Index:", this.currentZoneIndex, "Current Channel Index:", this.currentChannelIndex);
+                //console.log("Current Channel:", currentChannel.Alias, "Current TGID:", currentChannel.Tgid, "Current Freq:", currentChannel.Frequency, "Current Mode:", currentChannel.Mode, "Current Zone:", currentZone.Name, "Current Zone Index:", this.currentZoneIndex, "Current Channel Index:", this.currentChannelIndex);
 
                 const isconventional = (currentChannel.Mode == 1 || currentChannel.Mode == 2);
                 const istrunking = (currentChannel.Mode == 0 || currentChannel.Mode == 4);
@@ -104,9 +107,8 @@ export class ApxRadioApp {
                     console.log(`Talkgroup ${data.call.talkgroup} is not the current channel or frequncy ${parseInt(data.call.frequency)} is not the current Frequency Skipping...`);
                     return;
                 }
-
-                if (this.isscanenabled && !this.isTgidInCurrentScanList(data.call.talkgroup)){
-                    console.log(`Talkgroup ${data.call.talkgroup} is not in the scan list. Skipping...`);
+                if (this.isscanenabled && ((istrunking && !this.isTgidInCurrentScanList(data.call.talkgroup)) || (isconventional && !this.isFrequencyInCurrentScanList(data.call.frequency)))){
+                    console.log(`Talkgroup ${data.call.talkgroup} is not in the scan list or Frequency: ${data.call.frequency} is not in list. Skipping...`);
                     return;
                 }
 
@@ -155,6 +157,17 @@ export class ApxRadioApp {
         for (const zone of this.codeplug.Zones) {
             for (const channel of zone.Channels) {
                 if (channel.Tgid === tgid) {
+                    return channel.Alias;
+                }
+            }
+        }
+        return "Not Found";
+    }
+
+    getChannelNameFromFrequency(frequency) {
+        for (const zone of this.codeplug.Zones) {
+            for (const channel of zone.Channels) {
+                if (channel.Frequency === frequency) {
                     return channel.Alias;
                 }
             }
@@ -699,6 +712,14 @@ export class ApxRadioApp {
         return scanList.Items.some(item => item.Tgid === tgid);
     }
 
+    isFrequencyInCurrentScanList(frequency) {
+        const currentZone = this.codeplug.Zones[this.currentZoneIndex];
+        if (!currentZone || !currentZone.ScanListName) return false;
+
+        const scanList = this.codeplug.ScanLists.find(list => list.Name === currentZone.ScanListName);
+        if (!scanList) return false;
+        return scanList.Items.some(item => item.Frequency.toString() === frequency);
+    }
 }
 
 function sleep(ms) {
