@@ -1,21 +1,21 @@
 export class Codeplug {
-    constructor() {
-        this.Zones = [];
-        this.ScanLists = [];
-        this.RadioMode = 0;
-        this.ControlHead = 0;
-        this.CodeplugVersion = '';
-        this.LastProgramSource = 0;
-        this.ModelNumber = '';
-        this.SerialNumber = '';
-        this.FlickerCode = '';
-        this.RadioKilled = false;
-        this.TrunkingInhibited = false;
-        this.TtsEnabled = false;
-        this.SecondaryRadioTx = false;
-        this.EnforceSystemId = false;
-        this.HomeSystemId = '';
-        this.PasswordProtected = false;
+    constructor(data = {}) {
+        this.Zones = data.Zones || [];
+        this.ScanLists = data.ScanLists || [];
+        this.RadioMode = data.RadioMode || 0;
+        this.ControlHead = data.ControlHead || 0;
+        this.CodeplugVersion = data.CodeplugVersion || '';
+        this.LastProgramSource = data.LastProgramSource || 0;
+        this.ModelNumber = data.ModelNumber || '';
+        this.SerialNumber = data.SerialNumber || '';
+        this.FlickerCode = data.FlickerCode || '';
+        this.RadioKilled = data.RadioKilled || false;
+        this.TrunkingInhibited = data.TrunkingInhibited || false;
+        this.TtsEnabled = data.TtsEnabled || false;
+        this.SecondaryRadioTx = data.SecondaryRadioTx || false;
+        this.EnforceSystemId = data.EnforceSystemId || false;
+        this.HomeSystemId = data.HomeSystemId || '';
+        this.PasswordProtected = data.PasswordProtected || false;
     }
 
     async decrypt(encryptedData, password) {

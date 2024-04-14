@@ -371,9 +371,6 @@ export class ApxRadioApp {
         fileInput.click();
     }
 
-    onFileDialogCanceled() {
-        console.log('File dialog canceled.');
-    }
     async loadCodeplugFromStorage() {
         const storedCodeplug = localStorage.getItem('codeplug');
         if (storedCodeplug) {
@@ -387,7 +384,44 @@ export class ApxRadioApp {
                 document.getElementById("line1").innerText = "FL 01/81";
                 console.error('Error parsing stored codeplug:', error);
             }
+        } else {
+            console.log('No codeplug found in storage. Creating a default codeplug.');
+            this.createDefaultCodeplug();
+            console.log('Default codeplug created and loaded:', this.codeplug);
         }
+    }
+
+    createDefaultCodeplug() {
+        const defaultZone = {
+            Name: "Zone 1",
+            Channels: [
+                {
+                    Alias: "Channel 1",
+                    Frequency: null,
+                    Tgid: "5601",
+                    Mode: 0
+                }
+            ],
+            ScanListName: null
+        };
+
+        this.codeplug = new Codeplug({
+            ModelNumber: DEFAULT_MODEL,
+            SerialNumber: DEFAULT_SERIAL,
+            Zones: [defaultZone],
+            ScanLists: [],
+            RadioMode: 2,
+            ControlHead: 2,
+            TtsEnabled: true,
+            HomeSystemId: '500',
+            LastProgramSource: 3,
+            CodeplugVersion: FIRMWARE_VERSION,
+            FlickerCode: '100000-000000-1',
+            RadioKilled: false,
+            TrunkingInhibited: false
+        });
+
+        localStorage.setItem('codeplug', JSON.stringify(this.codeplug));
     }
 
     async handleLoadCodeplug() {
