@@ -28,6 +28,13 @@ class WebServer {
             res.render("index", { groups, connectedUsers: this.connectedUsers });
         });
 
+        if (this.debug) { // TODO: Remove debug check after pager is in beta
+            this.app.get('/unication/:model?', (req, res) => {
+                const model = req.params.model || 'g5';
+
+                res.render(model, { model });
+            });
+        }
 
         if (config.web.apx && config.web.apx.enabled) {
             this.app.get('/apxRadio/:chType?/:numOfRadios?', (req, res) => {
