@@ -20,8 +20,6 @@
 <script type="module" src="/public/js/ApxRadioApp.js"></script>
 <script type="module">
     const numOfRadios = "<%=numOfRadios%>"
-    const loadCodeplugBtn = document.getElementById('loadCodeplugBtn');
-    const updateCodeplugBtn = document.getElementById('updateCodeplugBtn');
 
     import { ApxRadioApp } from '/public/js/ApxRadioApp.js';
 
@@ -29,34 +27,6 @@
     const allowLoad = "<%-allowLoad%>";
 
     let apxRadioApp = new ApxRadioApp("APX4500", defaultCodeplug, allowLoad);
-    let powerState = false;
-
-    if (loadCodeplugBtn) {
-        loadCodeplugBtn.addEventListener('click', async () => {
-            await apxRadioApp.loadCodeplugJson();
-        });
-    }
-
-    if (updateCodeplugBtn) {
-        updateCodeplugBtn.addEventListener('click', async () => {
-            await apxRadioApp.updateCodeplugJson();
-        });
-    }
-
-    document.getElementById('radioPowerBtn').addEventListener('click', async () => {
-        if (powerState) {
-            await apxRadioApp.stop();
-            powerState = false;
-        } else {
-            await apxRadioApp.start();
-            if (!apxRadioApp.isstarted) {
-                console.log('Radio app failed to start');
-            } else {
-                console.log('Radio app started');
-            }
-            powerState = true;
-        }
-    });
 </script>
 <div style="text-align: center;">
     <div class="container">

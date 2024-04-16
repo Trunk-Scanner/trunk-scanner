@@ -17,6 +17,11 @@ const socket = io();
 
 export class ApxRadioApp {
     constructor(actualModel, defaultCodeplug, allowLoad) {
+        const loadCodeplugBtn = document.getElementById('loadCodeplugBtn');
+        const updateCodeplugBtn = document.getElementById('updateCodeplugBtn');
+
+        let powerState = false;
+
         this.codeplug = new Codeplug();
 
         this.actualRadioModel = actualModel;
@@ -49,6 +54,33 @@ export class ApxRadioApp {
 
         this.loadCodeplugFromStorage().then(r => {
             console.log('Codeplug loaded from storage.');
+        });
+
+        if (loadCodeplugBtn) {
+            loadCodeplugBtn.addEventListener('click', async () => {
+                await this.loadCodeplugJson();
+            });
+        }
+
+        if (updateCodeplugBtn) {
+            updateCodeplugBtn.addEventListener('click', async () => {
+                await this.updateCodeplugJson();
+            });
+        }
+
+        document.getElementById('radioPowerBtn').addEventListener('click', async () => {
+            if (powerState) {
+                await this.stop();
+                powerState = false;
+            } else {
+                await this.start();
+                if (!this.isstarted) {
+                    console.log('Radio app failed to start');
+                } else {
+                    console.log('Radio app started');
+                }
+                powerState = true;
+            }
         });
 
         const updateInfoAndPlay = (data) => {
@@ -325,6 +357,8 @@ export class ApxRadioApp {
         this.codeplug = new Codeplug();
 
         this.codeplug.load(this.defaultCodeplug);
+        this.codeplug = JSON.parse(this.defaultCodeplug);
+
         await this.handleLoadCodeplug();
         console.log('Codeplug loaded from server successfully.');
     }
@@ -445,6 +479,7 @@ export class ApxRadioApp {
     async handleLoadCodeplug() {
         clearDisplayLines();
         await sleep(1000);
+        console.log("Yeah here. CPG: ", this.codeplug);
 
         localStorage.setItem('codeplug', JSON.stringify(this.codeplug));
 
