@@ -32,7 +32,19 @@ class WebServer {
             this.app.get('/unication/:model?', (req, res) => {
                 const model = req.params.model || 'g5';
 
-                res.render(model, { model });
+                let codeplug = null;
+
+                if (config.web.unication && config.web.unication.g5 && config.web.unication.g5.defaultCodeplugDir && model === "g5") {
+                    codeplug = this.loadFile(config.web.unication.g5.defaultCodeplugDir);
+
+                    if (codeplug) {
+                        codeplug = JSON.parse(codeplug);
+                    } else {
+                        console.log("Failed to load default codeplug for G5; sending null default codeplug"); // TODO: Send empty codeplug maybe?
+                    }
+                }
+
+                res.render(model, { model, defaultCodeplug: codeplug });
             });
         }
 

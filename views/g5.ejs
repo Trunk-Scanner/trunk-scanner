@@ -9,15 +9,13 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.1.2/socket.io.js" crossorigin="anonymous"></script>
 </head>
-<header>
-    <div class="controller">
-    </div>
-</header>
 <body>
+<button id="loadCodeplugBtn">Load Codeplug</button>
+
 <script type="module">
 import {UnicationPagerApp} from "/public/js/UnicationPagerApp.js";
 
-new UnicationPagerApp("G5");
+new UnicationPagerApp("G5", null);
 </script>
 
 <div style="text-align: center;">
