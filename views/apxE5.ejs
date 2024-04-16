@@ -11,19 +11,38 @@
 <audio id="audioPlayer" controls hidden></audio>
 <audio id="soundEffectsPlayer" hidden></audio>
 
-<button id="loadCodeplugBtn">Load Codeplug</button>
+<% if (allowLoad) {%>
+    <button id="loadCodeplugBtn">Load Codeplug</button>
+<%} else {%>
+    <button id="updateCodeplugBtn">Update Codeplug</button>
+<%}%>
 
 <script type="module" src="/public/js/ApxRadioApp.js"></script>
 <script type="module">
     const numOfRadios = "<%=numOfRadios%>"
+    const loadCodeplugBtn = document.getElementById('loadCodeplugBtn');
+    const updateCodeplugBtn = document.getElementById('updateCodeplugBtn');
+
     import { ApxRadioApp } from '/public/js/ApxRadioApp.js';
 
-    let apxRadioApp = new ApxRadioApp("APX8500");
+    const defaultCodeplug = '<%-JSON.stringify(defaultCodeplug).replace(/</g, '\\u003c')%>';
+    const allowLoad = "<%-allowLoad%>";
+
+    let apxRadioApp = new ApxRadioApp("APX8500", defaultCodeplug, allowLoad);
     let powerState = false;
 
-    document.getElementById('loadCodeplugBtn').addEventListener('click', async () => {
-        await apxRadioApp.loadCodeplugJson();
-    });
+    if (loadCodeplugBtn) {
+        loadCodeplugBtn.addEventListener('click', async () => {
+            await apxRadioApp.loadCodeplugJson();
+        });
+    }
+
+    if (updateCodeplugBtn) {
+        updateCodeplugBtn.addEventListener('click', async () => {
+            await apxRadioApp.updateCodeplugJson();
+        });
+    }
+
     document.getElementById('radioPowerBtn').addEventListener('click', async () => {
         if (powerState) {
             await apxRadioApp.stop();

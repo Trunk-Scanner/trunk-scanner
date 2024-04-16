@@ -28,19 +28,42 @@ class WebServer {
             res.render("index", { groups, connectedUsers: this.connectedUsers });
         });
 
-        this.app.get('/apxRadio/:chType?/:numOfRadios?', (req, res) => {
-            const groups = config.groups;
-            const chType = req.params.chType;
-            const numOfRadios = req.params.numOfRadios;
 
-            if (chType === 'o2') {
-                res.render("apxO2", { groups, numOfRadios });
-            } else if (chType === 'apxE5') {
-                res.render("e5", { groups, numOfRadios });
-            } else {
-                res.render("apxE5", { groups, numOfRadios });
-            }
-        });
+        if (config.web.apx && config.web.apx.enabled) {
+            this.app.get('/apxRadio/:chType?/:numOfRadios?', (req, res) => {
+                const groups = config.groups;
+                const chType = req.params.chType;
+                const numOfRadios = req.params.numOfRadios;
+                const allowLoad = config.web.apx.allowLoadCodeplug;
+
+                let view;
+                let codeplug;
+
+                if (chType === 'o2') {
+                    view = "apxO2";
+                } else if (chType === 'apxE5') {
+                    view = "apxE5";
+                } else {
+                    view = "apxE5";
+                }
+
+                if ((config.web.apx && config.web.apx.o2 && config.web.apx.o2.defaultCodeplugDir) && view === "apxO2") {
+                    codeplug = this.loadFile(config.web.apx.o2.defaultCodeplugDir);
+
+                    if (this.debug) {
+                        console.log("O2 loaded: ", codeplug);
+                    }
+                } else if ((config.web.apx && config.web.apx.e5 && config.web.apx.e5.defaultCodeplugDir) && view === "apxE5") {
+                    codeplug = this.loadFile(config.web.apx.e5.defaultCodeplugDir);
+
+                    if (this.debug) {
+                        console.log("E5 loaded: ", codeplug);
+                    }
+                }
+
+                res.render(view, {groups, numOfRadios, defaultCodeplug: JSON.parse(codeplug), allowLoad: allowLoad});
+            });
+        }
 
         this.app.get('/api/recordings', (req, res) => {
             const { system, talkgroup, date } = req.query; // Filters from query params
@@ -97,6 +120,16 @@ class WebServer {
 
     emitUserCount() {
         this.io.emit('userCount', this.connectedUsers);
+    }
+
+    loadFile(filePath) {
+        try {
+            return fs.readFileSync(filePath, 'utf8');
+        }
+        catch (error) {
+            console.error(`Failed to read default codeplug: ${filePath}`);
+            return '';
+        }
     }
 }
 

@@ -16,9 +16,12 @@ const ControlHeadTypes = new Enum({
 const socket = io();
 
 export class ApxRadioApp {
-    constructor(actualModel) {
+    constructor(actualModel, defaultCodeplug, allowLoad) {
         this.codeplug = new Codeplug();
+
         this.actualRadioModel = actualModel;
+        this.defaultCodeplug = defaultCodeplug;
+        this.allowLoad = allowLoad;
 
         this.isstarted = false;
         this.iserrorstate = false;
@@ -305,7 +308,7 @@ export class ApxRadioApp {
         }
     }
 
-    async loadCodeplugJson() {
+    async programMode() {
         if (this.isstarted && this.codeplug) {
             console.log("Stopping current operations.");
             await this.stop();
@@ -314,6 +317,20 @@ export class ApxRadioApp {
             document.getElementById("line1").innerText = "Program Mode";
             await sleep(500);
         }
+    }
+
+    async updateCodeplugJson() {
+        await this.programMode();
+
+        this.codeplug = new Codeplug();
+
+        this.codeplug.load(this.defaultCodeplug);
+        await this.handleLoadCodeplug();
+        console.log('Codeplug loaded from server successfully.');
+    }
+
+    async loadCodeplugJson() {
+        await this.programMode();
 
         let fileInput = document.createElement('input');
         fileInput.type = 'file';
@@ -385,9 +402,10 @@ export class ApxRadioApp {
                 console.error('Error parsing stored codeplug:', error);
             }
         } else {
-            console.log('No codeplug found in storage. Creating a default codeplug.');
-            this.createDefaultCodeplug();
-            console.log('Default codeplug created and loaded:', this.codeplug);
+            console.log('No codeplug found in storage. loading a default codeplug.');
+            this.codeplug = JSON.parse(this.defaultCodeplug);
+            //this.createDefaultCodeplug(); // TODO: Remove in the future; maybe keep; unsure
+            console.log('Default codeplug loaded:', this.codeplug);
         }
     }
 

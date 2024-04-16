@@ -1,0 +1,88 @@
+{
+  "Zones": [
+    {
+      "Name": "ZONE A",
+      "ScanListName": "SRC",
+      "Channels": [
+        {
+          "Alias": "Central",
+          "Tgid": "5601",
+          "Frequency": null,
+          "Mode": 0
+        },
+        {
+          "Alias": "North",
+          "Tgid": "5602",
+          "Frequency": null,
+          "Mode": 0
+        }
+      ]
+    },
+    {
+      "Name": "ZONE B",
+      "ScanListName": null,
+      "Channels": [
+        {
+          "Alias": "8CALL90",
+          "Tgid": "",
+          "Frequency": "851012000",
+          "Mode": 2
+        },
+        {
+          "Alias": "8CALL91",
+          "Tgid": "",
+          "Frequency": "851512000",
+          "Mode": 2
+        }
+      ]
+    },
+    {
+      "Name": "LTR",
+      "ScanListName": "SRC",
+      "Channels": [
+        {
+          "Alias": "Tech",
+          "Tgid": "010",
+          "Frequency": "",
+          "Mode": 3
+        }
+      ]
+    }
+  ],
+  "ScanLists": [
+    {
+      "Name": "SRC",
+      "Items": [
+        {
+          "Alias": "Central",
+          "Tgid": "5601",
+          "Frequency": null,
+          "Mode": 0
+        },
+        {
+          "Alias": "North",
+          "Tgid": "5602",
+          "Frequency": null,
+          "Mode": 0
+        }
+      ]
+    }
+  ],
+  "RadioMode": 2,
+  "ControlHead": 1,
+  "LastProgramSource": 0,
+  "ModelNumber": "APX4500",
+  "SerialNumber": "123ABC1234",
+  "CodeplugVersion": "R01.12.00",
+  "FlickerCode": "1000-0000-1",
+  "HomeSystemId": "",
+  "BornSystemId": "",
+  "HashedPassword": "",
+  "EnforceSystemId": false,
+  "RequireSysKey": false,
+  "RadioKilled": false,
+  "TrunkingInhibited": false,
+  "TtsEnabled": true,
+  "SecondaryRadioTx": false,
+  "IsPasswordProtected": false
+}
