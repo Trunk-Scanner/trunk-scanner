@@ -1,7 +1,7 @@
-import { Codeplug } from '/public/js/models/Codeplug.js';
-import { Enum } from '/public/js/models/Enum.js';
+import {Codeplug} from '/public/js/models/Codeplug.js';
+import {Enum} from '/public/js/models/Enum.js';
 
-const FIRMWARE_VERSION = "R01.05.00";
+const FIRMWARE_VERSION = "R01.12.00";
 
 const DEFAULT_MODEL = "APX7500";
 const DEFAULT_SERIAL = "123ABC1234";
@@ -16,8 +16,18 @@ const ControlHeadTypes = new Enum({
 const socket = io();
 
 export class ApxRadioApp {
-    constructor() {
+    constructor(actualModel, defaultCodeplug, allowLoad) {
+        const loadCodeplugBtn = document.getElementById('loadCodeplugBtn');
+        const updateCodeplugBtn = document.getElementById('updateCodeplugBtn');
+
+        let powerState = false;
+
         this.codeplug = new Codeplug();
+
+        this.actualRadioModel = actualModel;
+        this.defaultCodeplug = defaultCodeplug;
+        this.allowLoad = allowLoad;
+
         this.isstarted = false;
         this.iserrorstate = false;
         this.iskilled = false;
@@ -46,14 +56,53 @@ export class ApxRadioApp {
             console.log('Codeplug loaded from storage.');
         });
 
+        if (loadCodeplugBtn) {
+            loadCodeplugBtn.addEventListener('click', async () => {
+                await this.loadCodeplugJson();
+            });
+        }
+
+        if (updateCodeplugBtn) {
+            updateCodeplugBtn.addEventListener('click', async () => {
+                await this.updateCodeplugJson();
+            });
+        }
+
+        document.getElementById('radioPowerBtn').addEventListener('click', async () => {
+            if (powerState) {
+                await this.stop();
+                powerState = false;
+            } else {
+                await this.start();
+                if (!this.isstarted) {
+                    console.log('Radio app failed to start');
+                } else {
+                    console.log('Radio app started');
+                }
+                powerState = true;
+            }
+        });
+
         const updateInfoAndPlay = (data) => {
             const srcId = data.call.source;
             this.isplaying = true;
-            this.stopPrimaryMissingInterval();
-            document.getElementById("line3").innerText = `ID: ${srcId}`;
+            let currentZone = this.codeplug.Zones[this.currentZoneIndex];
+            let currentChannel = currentZone.Channels[this.currentChannelIndex];
 
-            if (this.isscanenabled) {
+            this.stopPrimaryMissingInterval().then(r => {});
+
+            const isltr = currentChannel.Mode == 3;
+            const isanalog = currentChannel.Mode == 2;
+            const isconventionalp25 = currentChannel.Mode == 1;
+
+            if (!isltr && !isanalog) {
+                document.getElementById("line3").innerText = `ID: ${srcId}`;
+            }
+
+            if (this.isscanenabled && !isconventionalp25) {
                 document.getElementById("line2").innerText = this.getChannelNameFromTgid(data.call.talkgroup);
+            } else if (this.isscanenabled && isconventionalp25) {
+                document.getElementById("line2").innerText = this.getChannelNameFromFrequency(data.call.frequency);
             }
 
             console.log(`Playing audio: TGID: ${data.call.talkgroup}, Frequency: ${data.call.frequency}, Volume: ${audioPlayer.volume}`);
@@ -71,6 +120,11 @@ export class ApxRadioApp {
         socket.on('new_call', (data) => {
             if (!this.isstarted) return;
 
+            if (this.codeplug.EnforceSystemId && (data.call.system !== this.codeplug.HomeSystemId)) {
+                console.log(`System ID ${data.call.system} does not match enforced System ID ${this.codeplug.HomeSystemId}. Skipping...`);
+                return;
+            }
+
             if (data.type === "WAV_STREAM" && player) {
                 // TODO: Add later
                 console.log("New WAV_STREAM call received.");
@@ -84,13 +138,17 @@ export class ApxRadioApp {
                     return;
                 }
 
-                if (data.call.talkgroup !== currentChannel.Tgid && !this.isscanenabled){
-                    console.log(`Talkgroup ${data.call.talkgroup} is not the current channel. Skipping...`);
+                //console.log("Current Channel:", currentChannel.Alias, "Current TGID:", currentChannel.Tgid, "Current Freq:", currentChannel.Frequency, "Current Mode:", currentChannel.Mode, "Current Zone:", currentZone.Name, "Current Zone Index:", this.currentZoneIndex, "Current Channel Index:", this.currentChannelIndex);
+
+                const isconventional = (currentChannel.Mode == 1 || currentChannel.Mode == 2);
+                const istrunking = (currentChannel.Mode == 0 || currentChannel.Mode == 4);
+
+                if (!this.isscanenabled && ((istrunking && data.call.talkgroup !== currentChannel.Tgid) || (isconventional && currentChannel.Frequency.toString() !== data.call.frequency))) {
+                    console.log(`Talkgroup ${data.call.talkgroup} is not the current channel or frequncy ${parseInt(data.call.frequency)} is not the current Frequency Skipping...`);
                     return;
                 }
-
-                if (this.isscanenabled && !this.isTgidInCurrentScanList(data.call.talkgroup)){
-                    console.log(`Talkgroup ${data.call.talkgroup} is not in the scan list. Skipping...`);
+                if (this.isscanenabled && ((istrunking && !this.isTgidInCurrentScanList(data.call.talkgroup)) || (isconventional && !this.isFrequencyInCurrentScanList(data.call.frequency)))){
+                    console.log(`Talkgroup ${data.call.talkgroup} is not in the scan list or Frequency: ${data.call.frequency} is not in list. Skipping...`);
                     return;
                 }
 
@@ -139,6 +197,17 @@ export class ApxRadioApp {
         for (const zone of this.codeplug.Zones) {
             for (const channel of zone.Channels) {
                 if (channel.Tgid === tgid) {
+                    return channel.Alias;
+                }
+            }
+        }
+        return "Not Found";
+    }
+
+    getChannelNameFromFrequency(frequency) {
+        for (const zone of this.codeplug.Zones) {
+            for (const channel of zone.Channels) {
+                if (channel.Frequency === frequency) {
                     return channel.Alias;
                 }
             }
@@ -210,7 +279,12 @@ export class ApxRadioApp {
 
             await sleep(2500);
             clearDisplayLines();
-            document.getElementById("line1").innerText = "Version";
+            document.getElementById("line1").innerText = "Host Version";
+            document.getElementById("line2").innerText = FIRMWARE_VERSION;
+
+            await sleep(2500);
+            clearDisplayLines();
+            document.getElementById("line1").innerText = "CPG Version";
             document.getElementById("line2").innerText = this.codeplug.CodeplugVersion;
 
             await sleep(2500);
@@ -266,9 +340,7 @@ export class ApxRadioApp {
         }
     }
 
-    async loadCodeplugJson() {
-        console.log("Starting loadCodeplugJson process.");
-
+    async programMode() {
         if (this.isstarted && this.codeplug) {
             console.log("Stopping current operations.");
             await this.stop();
@@ -277,29 +349,79 @@ export class ApxRadioApp {
             document.getElementById("line1").innerText = "Program Mode";
             await sleep(500);
         }
+    }
+
+    async updateCodeplugJson() {
+        await this.programMode();
+
+        this.codeplug = new Codeplug();
+
+        this.codeplug.load(this.defaultCodeplug);
+        this.codeplug = JSON.parse(this.defaultCodeplug);
+
+        await this.handleLoadCodeplug();
+        console.log('Codeplug loaded from server successfully.');
+    }
+
+    async loadCodeplugJson() {
+        await this.programMode();
 
         let fileInput = document.createElement('input');
         fileInput.type = 'file';
         fileInput.accept = '.json';
         fileInput.style.display = 'none';
 
-        fileInput.onchange = (e) => {
+        fileInput.onchange = async (e) => {
             if (e.target.files.length === 0) {
                 console.log("File dialog was canceled.");
-                this.onFileDialogCanceled();
             } else {
-                console.log("File selected:", e.target.files[0].name);
-                this.handleFileSelect(e);
+                const file = e.target.files[0];
+                const reader = new FileReader();
+                reader.onload = async (e) => {
+                    const content = e.target.result;
+                    if (!isJsonValid(content)) {
+                        let password;
+                        if (localStorage.getItem("cpg_password")){
+                            password = localStorage.getItem("cpg_password");
+                        } else {
+                            password = prompt("This codeplug is password protected. Please enter the password:");
+                            localStorage.setItem("cpg_password", password);
+                        }
+
+                        if (password) {
+                            try {
+                                const decryptedContent = await this.codeplug.decrypt(content, password);
+                                this.codeplug.load(decryptedContent);
+                                console.log("CPG: ", this.codeplug);
+                                await this.handleLoadCodeplug();
+
+                                console.log('Encrypted codeplug loaded and decrypted successfully.');
+                            } catch (error) {
+
+                                localStorage.setItem('codeplug', null);
+                                this.codeplug = null;
+
+                                await this.stop();
+                                startBlinkingLed(150);
+                                document.getElementById("line1").innerText = "FL 01/81";
+
+                                console.error('Failed to decrypt codeplug:', error);
+                            }
+                        } else {
+                            console.log("No password provided.");
+                        }
+                    } else {
+                        this.codeplug.load(JSON.parse(content));
+                        await this.handleLoadCodeplug();
+                        console.log('Codeplug loaded successfully.');
+                    }
+                };
+                reader.readAsText(file);
             }
         };
-
-        document.body.appendChild(fileInput);
-        console.log("Clicking file input.");
         fileInput.click();
     }
-    onFileDialogCanceled() {
-        console.log('File dialog canceled.');
-    }
+
     async loadCodeplugFromStorage() {
         const storedCodeplug = localStorage.getItem('codeplug');
         if (storedCodeplug) {
@@ -313,52 +435,67 @@ export class ApxRadioApp {
                 document.getElementById("line1").innerText = "FL 01/81";
                 console.error('Error parsing stored codeplug:', error);
             }
+        } else {
+            console.log('No codeplug found in storage. loading a default codeplug.');
+            this.codeplug = JSON.parse(this.defaultCodeplug);
+            //this.createDefaultCodeplug(); // TODO: Remove in the future; maybe keep; unsure
+            console.log('Default codeplug loaded:', this.codeplug);
         }
     }
 
-    handleFileSelect(event) {
-        const file = event.target.files[0];
-        if (!file) {
-            console.error('No file selected.');
-            return;
-        }
-
-        const reader = new FileReader();
-        reader.onload = async (e) => {
-            try {
-                clearDisplayLines();
-                await sleep(1000);
-                const data = JSON.parse(e.target.result);
-                this.codeplug.load(data);
-                console.log('Codeplug loaded:', this.codeplug);
-
-                localStorage.setItem('codeplug', JSON.stringify(data));
-
-                if (this.codeplug && this.initialBoot) {
-                    await this.stop();
-                    await sleep(1000);
-                    clearDisplayLines();
-                    startBlinkingLed(150);
-                    document.getElementById("line1").innerText = "Updating";
-                    document.getElementById("line2").innerText = "Codeplug";
-                    await sleep(1500);
-                    stopBlinkingLed();
-                    clearDisplayLines();
-                    await sleep(500);
-                    await this.start();
+    createDefaultCodeplug() {
+        const defaultZone = {
+            Name: "Zone 1",
+            Channels: [
+                {
+                    Alias: "Channel 1",
+                    Frequency: null,
+                    Tgid: "5601",
+                    Mode: 0
                 }
-            } catch (error) {
-                localStorage.setItem('codeplug', null);
-                this.codeplug = null;
-
-                await this.stop();
-                startBlinkingLed(150);
-                document.getElementById("line1").innerText = "FL 01/81";
-                console.error('Error parsing JSON:', error);
-            }
+            ],
+            ScanListName: null
         };
 
-        reader.readAsText(file);
+        this.codeplug = new Codeplug({
+            ModelNumber: DEFAULT_MODEL,
+            SerialNumber: DEFAULT_SERIAL,
+            Zones: [defaultZone],
+            ScanLists: [],
+            RadioMode: 2,
+            ControlHead: 2,
+            TtsEnabled: true,
+            HomeSystemId: '500',
+            LastProgramSource: 3,
+            CodeplugVersion: FIRMWARE_VERSION,
+            FlickerCode: '100000-000000-1',
+            RadioKilled: false,
+            TrunkingInhibited: false
+        });
+
+        localStorage.setItem('codeplug', JSON.stringify(this.codeplug));
+    }
+
+    async handleLoadCodeplug() {
+        clearDisplayLines();
+        await sleep(1000);
+        console.log("Yeah here. CPG: ", this.codeplug);
+
+        localStorage.setItem('codeplug', JSON.stringify(this.codeplug));
+
+        if (this.codeplug && this.initialBoot) {
+            await this.stop();
+            await sleep(1000);
+            clearDisplayLines();
+            startBlinkingLed(150);
+            document.getElementById("line1").innerText = "Updating";
+            document.getElementById("line2").innerText = "Codeplug";
+            await sleep(1500);
+            stopBlinkingLed();
+            clearDisplayLines();
+            await sleep(500);
+            await this.start();
+        }
     }
 
     isRadioKilled(codeplug) {
@@ -544,6 +681,14 @@ export class ApxRadioApp {
         await sleep(500);
         document.getElementById("line1").innerText = '';
         await sleep(500);
+
+        if (this.codeplug.ModelNumber !== this.actualRadioModel) {
+            document.getElementById("line1").innerText = "ERR 01/02";
+            await sleep(1000);
+            clearDisplayLines();
+            await sleep(500);
+        }
+
         document.getElementById("line1").innerText = currentZone.Name;
         document.getElementById("line2").innerText = currentChannel.Alias;
         document.getElementById("line3").innerText = '';
@@ -675,6 +820,14 @@ export class ApxRadioApp {
         return scanList.Items.some(item => item.Tgid === tgid);
     }
 
+    isFrequencyInCurrentScanList(frequency) {
+        const currentZone = this.codeplug.Zones[this.currentZoneIndex];
+        if (!currentZone || !currentZone.ScanListName) return false;
+
+        const scanList = this.codeplug.ScanLists.find(list => list.Name === currentZone.ScanListName);
+        if (!scanList) return false;
+        return scanList.Items.some(item => item.Frequency.toString() === frequency);
+    }
 }
 
 function sleep(ms) {
@@ -766,4 +919,13 @@ function stopSoundEffect() {
     const player = document.getElementById('soundEffectsPlayer');
     player.pause();
     player.currentTime = 0;
+}
+
+function isJsonValid(jsonString) {
+    try {
+        JSON.parse(jsonString);
+        return true;
+    } catch (e) {
+        return false;
+    }
 }

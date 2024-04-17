@@ -11,33 +11,23 @@
 <audio id="audioPlayer" controls hidden></audio>
 <audio id="soundEffectsPlayer" hidden></audio>
 
-<button id="loadCodeplugBtn">Load Codeplug</button>
+<% if (allowLoad) {%>
+    <button id="loadCodeplugBtn">Load Codeplug</button>
+<%} else {%>
+    <button id="updateCodeplugBtn">Update Codeplug</button>
+<%}%>
 
 <script type="module" src="/public/js/ApxRadioApp.js"></script>
 <script type="module">
+    const numOfRadios = "<%=numOfRadios%>"
+
     import { ApxRadioApp } from '/public/js/ApxRadioApp.js';
-    let apxRadioApp = new ApxRadioApp();
-    let powerState = false;
 
-    document.getElementById('loadCodeplugBtn').addEventListener('click', async () => {
-        await apxRadioApp.loadCodeplugJson();
-    });
-    document.getElementById('radioPowerBtn').addEventListener('click', () => {
-        if (powerState) {
-            apxRadioApp.stop();
-            powerState = false;
-        } else {
-            apxRadioApp.start();
-            if (!apxRadioApp.isstarted) {
-                console.log('Radio app failed to start');
-            } else {
-                console.log('Radio app started');
-            }
-            powerState = true;
-        }
-    });
+    const defaultCodeplug = '<%-JSON.stringify(defaultCodeplug).replace(/</g, '\\u003c')%>';
+    const allowLoad = "<%-allowLoad%>";
+
+    let apxRadioApp = new ApxRadioApp("APX4500", defaultCodeplug, allowLoad);
 </script>
-
 <div style="text-align: center;">
     <div class="container">
         <img class="image" src="/public/images/o2_green.png" alt="radio">

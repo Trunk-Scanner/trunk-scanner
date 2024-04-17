@@ -1,6 +1,7 @@
 .DS_Store
 node_modules
 /dist
+/bin
 db/*.db
 uploads/**
 uploads/*
@@ -8,6 +9,10 @@ uploads
 
 configs/*
 !configs/config.example.yml
+
+codeplugs/*
+!codeplugs/codeplug_4500_o2.example.json
+!codeplugs/codeplug_8500_e5.example.json
 
 # local env files
 .env.local

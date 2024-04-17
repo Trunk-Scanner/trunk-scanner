@@ -2,9 +2,38 @@
   "name": "ltr-scanner",
   "version": "02.00.00",
   "description": "",
-  "main": "index.js",
+  "main": "app.js",
+  "bin": "app.js",
   "scripts": {
+    "start": "node app.js -c configs/config.yml",
+    "build": "pkg . -o ./bin/trunk-scanner",
+    "build:linux": "pkg . --targets node18-linux-x64 -o ./bin/trunk-scanner-linux",
+    "build:win": "pkg . --targets node18-win-x64 -o ./bin/trunk-scanner-win.exe",
+    "build:mac": "pkg . --targets node18-macos-x64 -o ./bin/trunk-scanner-mac",
     "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "pkg": {
+    "scripts": [
+      "*.js",
+      "modules/*.js",
+      "modules/**/*.js",
+      "modules/commands/*.js"
+    ],
+    "assets": [
+      "views/*",
+      "views/**/*",
+      "modules/*",
+      "modules/**/*",
+      "public/*",
+      "public/**/*",
+      "node_modules/*",
+      "node_modules/**/*"
+    ],
+    "targets": [
+      "node18-win",
+      "node18-linux",
+      "node18-mac"
+    ]
   },
   "keywords": [],
   "author": "Caleb, KO4UYJ",
@@ -22,6 +51,7 @@
     "libsodium-wrappers": "^0.7.13",
     "multer": "^1.4.5-lts.1",
     "node-fetch": "^3.3.2",
+    "pkg": "^5.8.1",
     "socket.io": "^4.7.5",
     "sqlite3": "^5.1.7",
     "yargs": "^17.7.2"

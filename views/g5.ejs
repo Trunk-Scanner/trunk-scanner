@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>TrunkScannerG5</title>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.1.2/socket.io.js" crossorigin="anonymous"></script>
+</head>
+<body>
+<audio id="audioPlayer" controls hidden></audio>
+<audio id="soundEffectsPlayer" hidden></audio>
+
+<button id="loadCodeplugBtn">Load Codeplug</button>
+
+<script type="module">
+import {UnicationPagerApp} from "/public/js/UnicationPagerApp.js";
+
+new UnicationPagerApp("G5", null);
+</script>
+
+<div style="text-align: center;">
+    <div class="container">
+        <img class="image" src="/public/images/g5.png" alt="radio">
+        <button id="channelButton" class="channelButton">C</button>
+        <div id="line1" class="line1"></div>
+        <div id="line2" class="line2"></div>
+        <div id="line3" class="line3"></div>
+        <!--        <div id="menu1" class="menu1"></div>-->
+        <!--        <div id="menu2" class="menu2"></div>-->
+        <!--        <div id="menu3" class="menu3"></div>-->
+        <button id="zoneButton" class="zoneButton">Z</button>
+        <button id="scanButton" class="scanButton">S</button>
+        <button id="pwr_button" class="pwr_button">PW</button>
+    </div>
+</div>
+
+<link rel="stylesheet" href="/public/css/g5.css">
+</body>
+</html>

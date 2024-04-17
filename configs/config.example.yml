@@ -1,6 +1,16 @@
 web: # Web Server for the UI
   port: 4000
   bindAddress: 0.0.0.0
+  apx:
+    enabled: true # Enables the APX Emulator web route
+    # Allows the end user to load their own codeplug.
+    # When this is set to false, the load button turns into an update button which will load the up-to-date default codeplug
+    # If the update button is never pressed, the browser will just load the browser stored codeplug every refresh.
+    allowLoadCodeplug: true
+    o2:
+      defaultCodeplugDir: "./codeplugs/codeplug_4500_o2.example.json"
+    e5:
+      defaultCodeplugDir: "./codeplugs/codeplug_8500_e5.example.json"
 
 sdrtrunk: # SDRTrunk Server. May work with other software's out there, untested
   enabled: true

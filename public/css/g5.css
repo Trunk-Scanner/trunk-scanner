@@ -1,0 +1,196 @@
+html, body {
+    width: 100%;
+    height: 100%;
+    background: white;
+}
+
+.bg-red {
+    background-color: red;
+}
+
+.bg-green {
+    background-color: green;
+}
+
+.custom-bordered-cell {
+    border: 3px solid #ccc;
+    padding: 8px;
+}
+
+.container {
+    position: relative;
+    display: inline-block;
+}
+
+.image {
+    display: block;
+    height: 100%;
+    width: 100%;
+}
+
+.line1 {
+    position: absolute;
+    top: 40%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1;
+    color: white;
+    font-size: 14px;
+    font-family: Helvetica, serif;
+    font-weight: bold;
+    text-align: center;
+}
+
+.line2 {
+    position: absolute;
+    top: 47%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1;
+    color: white;
+    font-size: 16px;
+    font-family: Helvetica, serif;
+    font-weight: bold;
+    text-align: center;
+}
+
+.line3 {
+    position: absolute;
+    top: 54%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1;
+    color: white;
+    font-size: 12px;
+    font-family: Helvetica, serif;
+    font-weight: bold;
+    text-align: center;
+}
+
+.pwr_button {
+    position: absolute;
+    border-radius: 100%;
+    cursor: pointer;
+    top: 17%;
+    left: 75%;
+    transform: translate(-50%, -50%);
+    z-index: 1;
+    font-size: 30px;
+    font-family: Helvetica, serif;
+    font-weight: bold;
+    text-align: center;
+    color: transparent;
+    background: transparent;
+    padding: 0;
+    margin: 0;
+    border: 0;
+}
+
+.channelButton {
+    position: absolute;
+    border-radius: 100%;
+    cursor: pointer;
+    top: 17%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1;
+    font-size: 30px;
+    font-family: Helvetica, serif;
+    font-weight: bold;
+    text-align: center;
+    color: transparent;
+    background: transparent;
+    padding: 0;
+    margin: 0;
+    border: 0;
+}
+
+.zoneButton {
+    position: absolute;
+    border-radius: 15%;
+    cursor: pointer;
+    top: 65%;
+    left: 22%;
+    transform: translate(-50%, -50%);
+    z-index: 1;
+    font-size: 15px;
+    font-family: Helvetica, serif;
+    font-weight: bold;
+    text-align: center;
+    color: transparent;
+    background: transparent;
+    padding: 0;
+    margin: 0;
+    border: 0;
+}
+
+.scanButton {
+    position: absolute;
+    border-radius: 15%;
+    cursor: pointer;
+    top: 65%;
+    left: 35%;
+    transform: translate(-50%, -50%);
+    z-index: 1;
+    font-size: 15px;
+    font-family: Helvetica, serif;
+    font-weight: bold;
+    text-align: center;
+    color: transparent;
+    background: transparent;
+    padding: 0;
+    margin: 0;
+    border: 0;
+}
+
+.menu1 {
+    position: absolute;
+    top: 88.5%;
+    left: 29%;
+    transform: translate(-50%, -50%);
+    z-index: 1;
+    color: black;
+    font-size: 20px;
+    font-family: Helvetica, serif;
+    font-weight: bold;
+    text-align: center;
+    background: darkturquoise;
+    border: 0;
+    border-right-color: black;
+    padding: 2px 5px;
+}
+
+.menu2 {
+    position: absolute;
+    top: 88.5%;
+    left: 40.5%;
+    transform: translate(-50%, -50%);
+    z-index: 1;
+    color: black;
+    font-size: 20px;
+    font-family: Helvetica, serif;
+    font-weight: bold;
+    text-align: center;
+    background: darkturquoise;
+    border: 0;
+    border-left-color: black;
+    padding: 2px 5px;
+}
+
+.menu3 {
+    position: absolute;
+    top: 88.5%;
+    left: 51.5%;
+    transform: translate(-50%, -50%);
+    z-index: 1;
+    color: black;
+    font-size: 20px;
+    font-family: Helvetica, serif;
+    font-weight: bold;
+    text-align: center;
+    background: darkturquoise;
+    border-left-color: black;
+    border: 0;
+
+    padding: 2px 5px;
+}
