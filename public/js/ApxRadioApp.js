@@ -44,6 +44,9 @@ export class ApxRadioApp {
         this.buttonPressCount = 0;
         this.primaryMissingInterval = null;
 
+        this.radioOnTimer = null;
+        this.radioOnDuration = 0;
+
         const audioPlayer = document.getElementById('audioPlayer');
 
         document.getElementById('zoneUp').addEventListener('click', () => this.zoneUp());
@@ -268,7 +271,7 @@ export class ApxRadioApp {
         this.buttonBeep();
 
         this.buttonPressCount += 1;
-        if (this.buttonPressCount === 5) {
+        if (this.buttonPressCount === 5 && this.radioOnDuration < 7) {
             console.debug('Button pressed 5 times');
             this.isstarted = false;
             await this.stop();
@@ -398,7 +401,7 @@ export class ApxRadioApp {
                                 console.log('Encrypted codeplug loaded and decrypted successfully.');
                             } catch (error) {
 
-                                localStorage.setItem('codeplug', null);
+                                localStorage.setItem(this.actualRadioModel + 'codeplug', null);
                                 this.codeplug = null;
 
                                 await this.stop();
@@ -423,7 +426,7 @@ export class ApxRadioApp {
     }
 
     async loadCodeplugFromStorage() {
-        const storedCodeplug = localStorage.getItem('codeplug');
+        const storedCodeplug = localStorage.getItem(this.actualRadioModel + 'codeplug');
         if (storedCodeplug) {
             try {
                 const data = JSON.parse(storedCodeplug);
@@ -473,7 +476,7 @@ export class ApxRadioApp {
             TrunkingInhibited: false
         });
 
-        localStorage.setItem('codeplug', JSON.stringify(this.codeplug));
+        localStorage.setItem(this.actualRadioModel + 'codeplug', JSON.stringify(this.codeplug));
     }
 
     async handleLoadCodeplug() {
@@ -481,7 +484,7 @@ export class ApxRadioApp {
         await sleep(1000);
         console.log("Yeah here. CPG: ", this.codeplug);
 
-        localStorage.setItem('codeplug', JSON.stringify(this.codeplug));
+        localStorage.setItem(this.actualRadioModel + 'codeplug', JSON.stringify(this.codeplug));
 
         if (this.codeplug && this.initialBoot) {
             await this.stop();
@@ -643,7 +646,18 @@ export class ApxRadioApp {
 
     async start() {
         console.log('Starting Main Radio App');
-        this.initialBoot = true;
+
+        this.radioOnTimer = setInterval(() => {
+            this.radioOnDuration++;
+
+            if (this.radioOnDuration % 600 === 0) {
+                console.log(`Radio has been on for ${Math.floor(this.radioOnDuration / 60)} minutes.`);
+            }
+        }, 1000);
+
+        if (!this.initialBoot) {
+            this.initialBoot = true;
+        }
 
         if (!this.codeplug) {
             console.error('No codeplug loaded.');
@@ -743,6 +757,14 @@ export class ApxRadioApp {
         console.log('Stopping Main Radio App');
         this.isstarted = false;
         this.isscanenabled = false;
+
+        if (this.radioOnTimer) {
+            clearInterval(this.radioOnTimer);
+            this.radioOnTimer = null;
+            console.log(`Radio was on for a total of ${this.radioOnDuration} seconds before being turned off.`);
+            this.radioOnDuration = 0;
+        }
+
         document.getElementById("rssi_icon").style.display = 'none';
         document.getElementById("scan_icon").style.display = 'none';
         document.getElementById("menu1").style.display = 'none';
