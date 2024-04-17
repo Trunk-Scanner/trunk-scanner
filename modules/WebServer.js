@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const express = require('express');
 const http = require('http');
-const { Server } = require("socket.io");
+const {Server} = require("socket.io");
 
 class WebServer {
     constructor(config) {
@@ -25,28 +25,26 @@ class WebServer {
         this.app.get('/', (req, res) => {
             const groups = config.groups;
 
-            res.render("index", { groups, connectedUsers: this.connectedUsers });
+            res.render("index", {groups, connectedUsers: this.connectedUsers});
         });
 
-        if (this.debug) { // TODO: Remove debug check after pager is in beta
-            this.app.get('/unication/:model?', (req, res) => {
-                const model = req.params.model || 'g5';
+        this.app.get('/unication/:model?', (req, res) => {
+            const model = req.params.model || 'g5';
 
-                let codeplug = null;
+            let codeplug = null;
 
-                if (config.web.unication && config.web.unication.g5 && config.web.unication.g5.defaultCodeplugDir && model === "g5") {
-                    codeplug = this.loadFile(config.web.unication.g5.defaultCodeplugDir);
+            if (config.web.unication && config.web.unication.g5 && config.web.unication.g5.defaultCodeplugDir && model === "g5") {
+                codeplug = this.loadFile(config.web.unication.g5.defaultCodeplugDir);
 
-                    if (codeplug) {
-                        codeplug = JSON.parse(codeplug);
-                    } else {
-                        console.log("Failed to load default codeplug for G5; sending null default codeplug"); // TODO: Send empty codeplug maybe?
-                    }
+                if (codeplug) {
+                    codeplug = JSON.parse(codeplug);
+                } else {
+                    console.log("Failed to load default codeplug for G5; sending null default codeplug"); // TODO: Send empty codeplug maybe?
                 }
+            }
 
-                res.render(model, { model, defaultCodeplug: codeplug });
-            });
-        }
+            res.render(model, {model, defaultCodeplug: codeplug});
+        });
 
         if (config.web.apx && config.web.apx.enabled) {
             this.app.get('/apxRadio/:chType?/:numOfRadios?', (req, res) => {
@@ -85,7 +83,7 @@ class WebServer {
         }
 
         this.app.get('/api/recordings', (req, res) => {
-            const { system, talkgroup, date } = req.query; // Filters from query params
+            const {system, talkgroup, date} = req.query; // Filters from query params
             const baseDir = path.join(__dirname, '../uploads');
 
             try {
@@ -144,8 +142,7 @@ class WebServer {
     loadFile(filePath) {
         try {
             return fs.readFileSync(filePath, 'utf8');
-        }
-        catch (error) {
+        } catch (error) {
             console.error(`Failed to read default codeplug: ${filePath}`);
             return '';
         }
