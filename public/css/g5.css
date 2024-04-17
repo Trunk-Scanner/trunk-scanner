@@ -35,7 +35,7 @@ html, body {
     transform: translate(-50%, -50%);
     z-index: 1;
     color: white;
-    font-size: 14px;
+    font-size: 15px;
     font-family: Helvetica, serif;
     font-weight: bold;
     text-align: center;
@@ -48,7 +48,7 @@ html, body {
     transform: translate(-50%, -50%);
     z-index: 1;
     color: white;
-    font-size: 16px;
+    font-size: 20px;
     font-family: Helvetica, serif;
     font-weight: bold;
     text-align: center;
@@ -86,63 +86,6 @@ html, body {
     border: 0;
 }
 
-.channelButton {
-    position: absolute;
-    border-radius: 100%;
-    cursor: pointer;
-    top: 17%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    z-index: 1;
-    font-size: 30px;
-    font-family: Helvetica, serif;
-    font-weight: bold;
-    text-align: center;
-    color: transparent;
-    background: transparent;
-    padding: 0;
-    margin: 0;
-    border: 0;
-}
-
-.zoneButton {
-    position: absolute;
-    border-radius: 15%;
-    cursor: pointer;
-    top: 65%;
-    left: 22%;
-    transform: translate(-50%, -50%);
-    z-index: 1;
-    font-size: 15px;
-    font-family: Helvetica, serif;
-    font-weight: bold;
-    text-align: center;
-    color: transparent;
-    background: transparent;
-    padding: 0;
-    margin: 0;
-    border: 0;
-}
-
-.scanButton {
-    position: absolute;
-    border-radius: 15%;
-    cursor: pointer;
-    top: 65%;
-    left: 35%;
-    transform: translate(-50%, -50%);
-    z-index: 1;
-    font-size: 15px;
-    font-family: Helvetica, serif;
-    font-weight: bold;
-    text-align: center;
-    color: transparent;
-    background: transparent;
-    padding: 0;
-    margin: 0;
-    border: 0;
-}
-
 .menu1 {
     position: absolute;
     top: 88.5%;
@@ -155,7 +98,7 @@ html, body {
     font-weight: bold;
     text-align: center;
     background: darkturquoise;
-    border: 0;
+    border: 0px;
     border-right-color: black;
     padding: 2px 5px;
 }
@@ -172,7 +115,7 @@ html, body {
     font-weight: bold;
     text-align: center;
     background: darkturquoise;
-    border: 0;
+    border: 0px;
     border-left-color: black;
     padding: 2px 5px;
 }
@@ -190,7 +133,7 @@ html, body {
     text-align: center;
     background: darkturquoise;
     border-left-color: black;
-    border: 0;
+    border: 0px;
 
     padding: 2px 5px;
 }
