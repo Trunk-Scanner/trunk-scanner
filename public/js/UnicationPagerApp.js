@@ -136,14 +136,13 @@ export class UnicationPagerApp {
         this.isreceiving = true;
         this.updateTextContent("1", `To:${call.talkgroupLabel}`);
         this.updateTextContent("2", '');
-        this.updateTextContent("3", `Fm:[${call.source}]`);
 
         const isltr = this.current_channel.Mode == 3;
         const isanalog = this.current_channel.Mode == 2;
         const isconventionalp25 = this.current_channel.Mode == 1;
 
         if (!isltr && !isanalog) {
-            document.getElementById("line3").innerText = `Fm: ${call.source}`;
+            document.getElementById("line3").innerText = `Fm:[${call.source}]`;
         }
 
         if (this.isscanenabled && !isconventionalp25) {
