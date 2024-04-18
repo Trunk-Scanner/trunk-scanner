@@ -143,7 +143,7 @@ export class UnicationPagerApp {
         const isconventionalp25 = this.current_channel.Mode == 1;
 
         if (!isltr && !isanalog) {
-            document.getElementById("line3").innerText = `ID: ${call.source}`;
+            document.getElementById("line3").innerText = `Fm: ${call.source}`;
         }
 
         if (this.isscanenabled && !isconventionalp25) {
