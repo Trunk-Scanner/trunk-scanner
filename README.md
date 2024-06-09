@@ -2,8 +2,6 @@
 
 [![License](https://img.shields.io/badge/License-GPLv3-blue?style=for-the-badge)](https://www.gnu.org/licenses/gpl-3.0)
 
-# IN ACTIVE DEVELOPMENT
-
 Remotely listen to SDR software and playback recordings.
 
 ### Simple UI:
@@ -22,17 +20,22 @@ Install node js
 
 `npm i`
 
+### Configure
+
+Edit `config.yml` file to your needs
+
+You should setup a API in SDR Trunk similar to rdio scanner.
+
+Specify the corresponding info you made in SDR Trunk API in the config file.
+
+The groups in the config file are for the UI whitelists on the standard/default view vs the codeplug defines this for the APX or unication view.
+
 ### Running Trunk Scanner
 
 If you want to specify your own config file:
 ```bash
-node src/app.js -c configs/config.yml
+node app.js -c configs/config.yml
 ```
 
-### Configure
-
-Edit the `config.yml` file to your needs
-
-## Todo
-
-A lot
+### Usage
+The default `/` route will show the standard view, `/apxRadio` will show the APX view, and `/unication` will give you the unication view.
