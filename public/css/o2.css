@@ -56,7 +56,7 @@ html, body {
 
 .line3 {
     position: absolute;
-    top: 49%;
+    top: 46.5%;
     left: 37.6%;
     transform: translate(-50%, -50%);
     z-index: 1;
@@ -65,7 +65,7 @@ html, body {
     font-family: Helvetica, serif;
     font-weight: bold;
     text-align: center;
-    background-color: white;
+    background: transparent;
     width: 232px;
 }
 
@@ -235,7 +235,7 @@ html, body {
 .menu1 {
     position: absolute;
     top: 57%;
-    left: 26.5%;
+    left: 25%;
     transform: translate(-50%, -50%);
     z-index: 1;
     color: white;
@@ -309,7 +309,7 @@ html, body {
     display: none;
     position: absolute;
     top: 19.5%;
-    left: 22.5%;
+    left: 21.7%;
 }
 
 .secure_icon {
